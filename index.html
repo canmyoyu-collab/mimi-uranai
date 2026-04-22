@@ -1,0 +1,871 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>耳占い婚活診断 ✨</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+  body {
+    min-height: 100vh;
+    background: linear-gradient(160deg, #f9e4ee 0%, #f2c8dc 40%, #fde8f2 70%, #fdf0f8 100%);
+    font-family: 'Hiragino Sans', 'Noto Sans JP', sans-serif;
+    color: #5a2d42;
+    overflow-x: hidden;
+  }
+
+  #stars {
+    position: fixed; inset: 0; pointer-events: none; z-index: 0;
+  }
+
+  .star {
+    position: absolute; border-radius: 50%; background: #e8a0c0;
+    animation: twinkle var(--dur) ease-in-out infinite var(--delay);
+  }
+
+  @keyframes twinkle { 0%,100%{opacity:.2} 50%{opacity:.9} }
+  @keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-10px)} }
+  @keyframes shimmer { 0%{background-position:0% 50%} 100%{background-position:200% 50%} }
+  @keyframes fadeUp { from{opacity:0;transform:translateY(24px)} to{opacity:1;transform:translateY(0)} }
+  @keyframes pulse { 0%,100%{box-shadow:0 0 0 0 rgba(220,100,140,.4)} 70%{box-shadow:0 0 0 16px rgba(220,100,140,0)} }
+  @keyframes spin { to{transform:rotate(360deg)} }
+  @keyframes bounce { 0%,80%,100%{transform:scale(0)} 40%{transform:scale(1)} }
+
+  .wrap {
+    max-width: 480px;
+    margin: 0 auto;
+    padding: 28px 16px 48px;
+    position: relative;
+    z-index: 1;
+    animation: fadeUp .5s ease;
+  }
+
+  /* ──── HEADER ──── */
+  .header { text-align: center; margin-bottom: 32px; }
+  .ear-icon {
+    font-size: 54px;
+    display: inline-block;
+    animation: float 4s ease-in-out infinite;
+    margin-bottom: 8px;
+  }
+  .title {
+    font-size: 26px;
+    font-weight: 400;
+    letter-spacing: .18em;
+    background: linear-gradient(90deg, #c0607a, #e8809a, #c0607a);
+    background-size: 200%;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: shimmer 5s linear infinite;
+    margin-bottom: 4px;
+  }
+  .subtitle {
+    font-size: 12px;
+    letter-spacing: .3em;
+    color: #b07085;
+    font-weight: 400;
+  }
+  .divider {
+    margin: 12px auto;
+    width: 60px;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, #e8a0b5, transparent);
+  }
+
+  /* ──── CARD ──── */
+  .card {
+    background: rgba(255,255,255,.7);
+    backdrop-filter: blur(16px);
+    border: 1px solid rgba(220,150,175,.3);
+    border-radius: 24px;
+    padding: 28px 22px;
+    margin-bottom: 20px;
+    animation: fadeUp .5s ease;
+    box-shadow: 0 4px 24px rgba(200,100,130,.1);
+  }
+
+  .card-title {
+    font-size: 15px;
+    letter-spacing: .1em;
+    color: #c0607a;
+    margin-bottom: 18px;
+    text-align: center;
+    font-weight: 600;
+  }
+
+  /* ──── STEP INDICATOR ──── */
+  .steps {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin-bottom: 28px;
+  }
+  .step-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: rgba(200,130,155,.3);
+    transition: all .3s;
+  }
+  .step-dot.active {
+    background: #d4728a;
+    box-shadow: 0 0 8px rgba(212,114,138,.4);
+    width: 24px;
+    border-radius: 4px;
+  }
+  .step-dot.done { background: rgba(212,114,138,.5); }
+
+  /* ──── AGE INPUT ──── */
+  .age-input-wrap {
+    position: relative;
+    margin-bottom: 10px;
+  }
+  .age-input {
+    width: 100%;
+    padding: 18px 50px 18px 20px;
+    background: rgba(255,240,245,.8);
+    border: 1.5px solid rgba(212,114,138,.4);
+    border-radius: 16px;
+    color: #5a2d42;
+    font-size: 22px;
+    font-family: inherit;
+    text-align: center;
+    letter-spacing: .1em;
+    outline: none;
+    transition: border-color .3s;
+    -webkit-appearance: none;
+    appearance: none;
+  }
+  .age-input:focus { border-color: #d4728a; }
+  .age-unit {
+    position: absolute;
+    right: 18px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #a06070;
+    font-size: 14px;
+  }
+  .age-hint { font-size: 12px; color: #a06070; text-align: center; margin-bottom: 6px; }
+
+  /* ──── BUTTONS ──── */
+  .btn {
+    width: 100%;
+    padding: 16px;
+    border: none;
+    border-radius: 50px;
+    font-size: 16px;
+    font-family: inherit;
+    letter-spacing: .15em;
+    cursor: pointer;
+    transition: all .25s;
+    position: relative;
+    overflow: hidden;
+  }
+  .btn-primary {
+    background: linear-gradient(135deg, #d4728a, #e8909a, #c05878);
+    color: #fff;
+    box-shadow: 0 4px 16px rgba(212,114,138,.35);
+  }
+  .btn-primary:hover:not(:disabled) { transform: scale(1.02); box-shadow: 0 6px 20px rgba(212,114,138,.5); }
+  .btn-primary:disabled { opacity: .5; cursor: not-allowed; }
+  .btn-secondary {
+    background: rgba(255,240,245,.6);
+    border: 1.5px solid rgba(212,114,138,.3);
+    color: #a06070;
+    margin-top: 10px;
+    font-size: 14px;
+  }
+  .btn-secondary:hover { background: rgba(255,220,235,.8); }
+
+  /* ──── EAR INSTRUCTION ──── */
+  .ear-guide {
+    text-align: center;
+    margin-bottom: 22px;
+  }
+  .ear-side-badge {
+    display: inline-block;
+    padding: 6px 24px;
+    border-radius: 50px;
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: .2em;
+    margin-bottom: 14px;
+    animation: pulse 2s ease-in-out infinite;
+  }
+  .ear-left { background: linear-gradient(135deg, #e8a0b5, #f0c0cc); }
+  .ear-right { background: linear-gradient(135deg, #d4728a, #e8a0b0); }
+
+  .ear-visual {
+    font-size: 64px;
+    margin: 12px 0;
+    display: block;
+  }
+  .ear-tip {
+    background: rgba(255,235,242,.7);
+    border: 1px solid rgba(212,114,138,.2);
+    border-radius: 14px;
+    padding: 14px 16px;
+    font-size: 13px;
+    line-height: 1.8;
+    color: #6a3a4a;
+    text-align: left;
+  }
+  .ear-tip li { margin-left: 18px; margin-bottom: 6px; }
+
+  /* ──── UPLOAD ──── */
+  .upload-zone {
+    border: 2px dashed rgba(212,114,138,.4);
+    border-radius: 20px;
+    padding: 28px 16px;
+    text-align: center;
+    cursor: pointer;
+    background: rgba(255,240,245,.5);
+    transition: all .3s;
+    margin-bottom: 16px;
+  }
+  .upload-zone.dragover { border-color: #d4728a; background: rgba(255,220,235,.6); }
+  .upload-zone img { max-height: 240px; max-width: 100%; border-radius: 14px; box-shadow: 0 4px 20px rgba(200,100,130,.25); }
+
+  .upload-buttons {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+  .btn-upload {
+    padding: 14px 10px;
+    border: 1.5px solid rgba(212,114,138,.3);
+    border-radius: 14px;
+    background: rgba(255,240,245,.7);
+    color: #8a4a5a;
+    font-family: inherit;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all .25s;
+    text-align: center;
+  }
+  .btn-upload:hover { background: rgba(255,220,235,.9); }
+  .btn-upload .ico { font-size: 22px; display: block; margin-bottom: 4px; }
+
+  /* ──── LOADING ──── */
+  .loading-wrap { text-align: center; padding: 28px 0; }
+  .loading-orbs { display: flex; justify-content: center; gap: 10px; margin-bottom: 18px; }
+  .orb {
+    width: 12px; height: 12px;
+    border-radius: 50%;
+    background: #d4728a;
+    animation: bounce 1.4s ease-in-out infinite;
+  }
+  .orb:nth-child(2) { animation-delay: .16s; }
+  .orb:nth-child(3) { animation-delay: .32s; }
+  .loading-text { font-size: 13px; color: #a06070; letter-spacing: .1em; line-height: 1.8; }
+
+  /* ──── RESULT ──── */
+  .type-badge {
+    text-align: center;
+    margin-bottom: 22px;
+  }
+  .type-icon { font-size: 44px; display: block; margin-bottom: 8px; }
+  .type-label {
+    display: inline-block;
+    background: linear-gradient(135deg, #d4728a, #e8909a);
+    color: #fff;
+    padding: 8px 28px;
+    border-radius: 50px;
+    font-size: 15px;
+    letter-spacing: .15em;
+    font-weight: 600;
+    box-shadow: 0 4px 14px rgba(212,114,138,.35);
+  }
+
+  .result-text {
+    font-size: 15px;
+    line-height: 2;
+    color: #4a2535;
+    white-space: pre-wrap;
+    letter-spacing: .03em;
+  }
+
+  /* section blocks inside result */
+  .result-section {
+    background: rgba(255,235,242,.6);
+    border: 1px solid rgba(212,114,138,.2);
+    border-radius: 16px;
+    padding: 18px;
+    margin: 16px 0;
+  }
+
+  .result-footer {
+    margin-top: 22px;
+    padding-top: 16px;
+    border-top: 1px solid rgba(212,114,138,.2);
+    text-align: center;
+    font-size: 11px;
+    color: #a07080;
+    letter-spacing: .1em;
+  }
+
+
+  /* ──── NOTICE ──── */
+  .notice {
+    font-size: 11px;
+    color: #a07080;
+    text-align: center;
+    line-height: 1.8;
+    margin-top: 18px;
+  }
+
+  /* mobile overrides */
+  @media (max-width: 360px) {
+    .wrap { padding: 20px 12px 40px; }
+    .title { font-size: 22px; }
+  }
+</style>
+</head>
+<body>
+
+<div id="stars"></div>
+<div class="wrap" id="app"></div>
+
+<script>
+// ─── STARS ───────────────────────────────────────────
+const starsEl = document.getElementById('stars');
+for (let i = 0; i < 45; i++) {
+  const s = document.createElement('div');
+  s.className = 'star';
+  const size = i % 6 === 0 ? 3 : 2;
+  s.style.cssText = `
+    left:${Math.random()*100}%;
+    top:${Math.random()*100}%;
+    width:${size}px; height:${size}px;
+    --dur:${2+Math.random()*3}s;
+    --delay:-${Math.random()*3}s;
+    opacity:${.3+Math.random()*.5};
+  `;
+  starsEl.appendChild(s);
+}
+
+// ─── STATE ───────────────────────────────────────────
+const state = {
+  step: 'age',       // age | instruction | upload | loading | result
+  age: '',
+  imageFile: null,
+  imageURL: null,
+  imageBase64: null,
+  imageType: null,
+  result: '',
+};
+
+// ─── SYSTEM PROMPT ───────────────────────────────────
+const SYSTEM_PROMPT = `あなたは「耳占い婚活アドバイザー」です。中谷ミミ先生の「耳占い 1年以内に結婚する計画」をベースに、耳の写真から婚活タイプを診断し、前向きになれるアドバイスをします。
+
+【耳の各部位の意味】
+- 耳たぶ（大きい・厚い）：愛情深く包容力がある → あたため上手タイプ
+- 耳たぶ（小さい・薄い）：自立心が強く、慎重に相手を選ぶ → 凛々しいキャリアタイプ
+- 耳の輪郭（はっきり・シャープ）：意志強く目標達成型 → 凛々しいキャリアタイプ
+- 耳の輪郭（丸みがある・やわらか）：柔軟で癒し系 → あたため上手タイプ
+- 内耳のひだ（複雑・多い）：感受性豊か、深い愛を築ける → 高感度センサータイプ
+- 耳が顔に近い：繊細で夢見がち → ロマンティストタイプ
+- 耳が顔から離れている：個性的・自由人 → マイペース魅力タイプ
+- 耳全体が大きい：スケールが大きく大きな愛を持てる
+- 耳の色がピンク：恋愛運上昇中のサイン
+- ダーウィン結節（耳上部の小さな突起）：独自の魅力で人を惹きつける希少タイプ
+
+【タイプ一覧】
+1. あたため上手タイプ 🌸（愛情深い・包容力系）
+2. 高感度センサータイプ ✨（感受性豊か・繊細系）
+3. 凛々しいキャリアタイプ 💎（自立心・行動力系）
+4. ロマンティストタイプ 🌙（夢見がち・ロマンス重視系）
+5. マイペース魅力タイプ 🦋（個性的・自由人系）
+
+【出力フォーマット（必ずこの順序で）】
+まず2〜3行で耳の特徴を観察して言及する。
+
+次に以下のセクションを出力：
+
+✨ あなたは「◯◯タイプ」！
+
+[100〜150字でそのタイプの婚活における強みと弱みを説明]
+
+💡 婚活アドバイス3〜5つ
+
+1. [アドバイス1]
+2. [アドバイス2]
+3. [アドバイス3]
+4. [アドバイス4（任意）]
+5. [アドバイス5（任意）]
+
+🌸 ウエディングサイン
+
+[2〜3行の前向きな締めメッセージ]
+
+【トーン：フランク敬語で！】
+友達のお姉さんが話しかけてくれるような、温かくフランクな敬語でお願いします。
+「〜ですよ！」「〜しちゃいましょう！」「わかります！」「大丈夫ですよ！」など。「よ〜」のように語尾を伸ばすのは避けてください。
+婚活に悩む女性が「あ、私でも大丈夫かも！」「やってみよう！」と前向きになれる、希望に満ちた内容にしてください。
+必ず日本語で回答してください。`;
+
+// ─── RENDER HELPERS ──────────────────────────────────
+const app = document.getElementById('app');
+
+function render(html) {
+  app.innerHTML = html;
+  app.style.animation = 'none';
+  requestAnimationFrame(() => { app.style.animation = 'fadeUp .4s ease'; });
+  bindEvents();
+}
+
+function stepDots(current) {
+  const steps = ['age','instruction','upload','result'];
+  const idx = steps.indexOf(current);
+  return `<div class="steps">
+    ${steps.map((s, i) => `<div class="step-dot ${i < idx ? 'done' : ''} ${i === idx ? 'active' : ''}"></div>`).join('')}
+  </div>`;
+}
+
+function header() {
+  return `<div class="header">
+    <div class="ear-icon">👂</div>
+    <div class="title">耳 占 い 婚 活 診 断</div>
+    <div class="subtitle">～ 1年以内に結婚する計画 ～</div>
+    <div class="divider"></div>
+  </div>`;
+}
+
+// ─── PAGES ───────────────────────────────────────────
+
+function renderAge() {
+  render(`
+    ${header()}
+    ${stepDots('age')}
+    <div class="card">
+      <div class="card-title">まず、あなたの年齢を教えてください！</div>
+      <div class="age-input-wrap">
+        <input class="age-input" id="ageInput" type="number" inputmode="numeric"
+          min="18" max="80" placeholder="例：28" value="${state.age}">
+        <span class="age-unit">歳</span>
+      </div>
+      <div class="age-hint">※ 年齢によって診断に使う耳が変わります</div>
+    </div>
+
+
+    <button class="btn btn-primary" id="btnAge" ${!state.age ? 'disabled' : ''}>
+      次へ　→
+    </button>
+    <div class="notice">
+      送信した画像はAIの分析にのみ使用されます。<br>個人情報として保存されることはありません。
+    </div>
+    ${renderQRFooter()}
+  `);
+}
+
+function renderInstruction() {
+  const age = parseInt(state.age);
+  const isRight = age >= 35;
+  const side = isRight ? '右' : '左';
+  const badgeClass = isRight ? 'ear-right' : 'ear-left';
+  const visual = isRight ? '🔄👂' : '👂🔄';
+
+  render(`
+    ${header()}
+    ${stepDots('instruction')}
+    <div class="card">
+      <div class="card-title">撮影する耳はこちら！</div>
+      <div class="ear-guide">
+        <div class="ear-side-badge ${badgeClass}">
+          ${side}耳
+        </div>
+        <div style="font-size:72px; margin: 16px 0; display:block; text-align:center">
+          ${isRight ? '🫱👂' : '👂🫲'}
+        </div>
+        <div style="font-size: 14px; color: #d4a8ff; margin-bottom: 18px; line-height: 1.7">
+          ${age}歳は<strong style="color:#e8b4ff">「${side}耳」</strong>を使って診断します！<br>
+          耳全体がしっかり写るように撮ってみてくださいね📸
+        </div>
+      </div>
+      <div class="ear-tip">
+        <strong style="color:#e8b4ff; display:block; margin-bottom:8px">📋 撮影のコツ</strong>
+        <ul>
+          <li>耳を横から、耳全体が入るように撮影する</li>
+          <li>明るい場所で撮ると鑑定の精度UP！</li>
+          <li>髪の毛が耳にかかっていない状態がベスト</li>
+          <li>耳の形・耳たぶまで写るように意識して</li>
+        </ul>
+      </div>
+    </div>
+    <button class="btn btn-primary" id="btnToUpload">
+      📸 写真を撮る・選ぶ
+    </button>
+    <button class="btn btn-secondary" id="btnBackAge">
+      ← 戻る
+    </button>
+  `);
+}
+
+function renderUpload() {
+  const age = parseInt(state.age);
+  const side = age >= 35 ? '右' : '左';
+
+  render(`
+    ${header()}
+    ${stepDots('upload')}
+    <div class="card">
+      <div class="card-title">📸 ${side}耳の写真をアップロード</div>
+
+      <div class="upload-zone" id="uploadZone">
+        ${state.imageURL
+          ? `<img src="${state.imageURL}" alt="ear">`
+          : `<div style="font-size:40px; margin-bottom:12px; opacity:.7">🌙</div>
+             <div style="font-size:15px; color:#d0b0f0; margin-bottom:6px">ここにドロップ</div>
+             <div style="font-size:12px; color:#9070b0">または下のボタンから選択</div>`
+        }
+      </div>
+
+      <div class="upload-buttons">
+        <label class="btn-upload" for="cameraInput">
+          <span class="ico">📷</span>カメラで撮影
+          <input type="file" id="cameraInput" accept="image/*" capture="environment" style="display:none">
+        </label>
+        <label class="btn-upload" for="galleryInput">
+          <span class="ico">🖼️</span>ギャラリーから
+          <input type="file" id="galleryInput" accept="image/*" style="display:none">
+        </label>
+      </div>
+
+      ${state.imageURL ? `
+        <button class="btn btn-primary" id="btnAnalyze">
+          ✨ 診断スタート！
+        </button>
+        <button class="btn btn-secondary" id="btnClearImg">
+          別の写真を選ぶ
+        </button>
+      ` : `
+        <button class="btn btn-primary" disabled>
+          写真を選んでから診断できます
+        </button>
+      `}
+    </div>
+    <button class="btn btn-secondary" id="btnBackInst" style="margin-top:0">
+      ← 戻る
+    </button>
+  `);
+}
+
+function renderLoading() {
+  const msgs = [
+    '耳のヒダひとつひとつを読み解いています…',
+    '婚活タイプを分析中です…',
+    '星々があなたの縁を鑑定しています…',
+    'ウエディングサインを探しています…',
+  ];
+  const msg = msgs[Math.floor(Math.random() * msgs.length)];
+
+  render(`
+    ${header()}
+    <div class="card" style="text-align:center; padding: 40px 22px">
+      <div style="font-size:54px; animation:float 3s ease-in-out infinite; display:block; margin-bottom:24px">🔮</div>
+      <div class="loading-orbs">
+        <div class="orb"></div>
+        <div class="orb"></div>
+        <div class="orb"></div>
+      </div>
+      <div class="loading-text">
+        ${msg}<br>
+        <span style="font-size:11px; color:#604880; margin-top:8px; display:block">少々お待ちください…</span>
+      </div>
+    </div>
+  `);
+}
+
+function renderResult(text) {
+  // Extract type name from the result (looks for 「◯◯タイプ」)
+  const typeMatch = text.match(/「(.+?タイプ)」/);
+  const typeName = typeMatch ? typeMatch[1] : null;
+  const typeIcons = {
+    'あたため上手タイプ': '🌸',
+    '高感度センサータイプ': '✨',
+    '凛々しいキャリアタイプ': '💎',
+    'ロマンティストタイプ': '🌙',
+    'マイペース魅力タイプ': '🦋',
+  };
+  const icon = typeName ? (typeIcons[typeName] || '💜') : '💜';
+
+  render(`
+    ${header()}
+    ${stepDots('result')}
+    <div class="card">
+      ${typeName ? `
+      <div class="type-badge">
+        <span class="type-icon">${icon}</span>
+        <span class="type-label">${typeName}</span>
+      </div>
+      ` : ''}
+
+      <div class="result-text">${escapeHtml(text)}</div>
+
+      <div class="result-footer">
+        ✧ 中谷ミミ「耳占い 1年以内に結婚する計画」に基づくAI鑑定 ✧
+      </div>
+    </div>
+
+    <button class="btn btn-primary" id="btnRetry">
+      🔄 もう一度診断する
+    </button>
+    <button class="btn btn-secondary" id="btnShare" style="display:none">
+      シェアする
+    </button>
+  `);
+}
+
+function escapeHtml(str) {
+  return str
+    .replace(/&/g,'&amp;')
+    .replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;');
+}
+
+// ─── ANALYZE ─────────────────────────────────────────
+async function analyze() {
+  const age = parseInt(state.age);
+  const side = age >= 35 ? '右' : '左';
+
+  renderLoading();
+
+  try {
+    const res = await fetch('/api/analyze', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-6',
+        max_tokens: 1500,
+        system: SYSTEM_PROMPT,
+        messages: [{
+          role: 'user',
+          content: [
+            {
+              type: 'image',
+              source: {
+                type: 'base64',
+                media_type: state.imageType,
+                data: state.imageBase64,
+              },
+            },
+            {
+              type: 'text',
+              text: `これは${side}耳（${age}歳）の写真です。婚活タイプを診断して、前向きになれるアドバイスをお願いします！`,
+            },
+          ],
+        }],
+      }),
+    });
+
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.error?.message || `HTTP ${res.status}`);
+    }
+
+    const data = await res.json();
+    const text = (data.content || []).map(b => b.text || '').join('') || '分析できませんでした。';
+    state.result = text;
+    renderResult(text);
+
+  } catch (err) {
+    renderResult(`ごめんなさい、一時的なエラーが発生しました😢\n\nもう一度お試しいただくか、しばらく時間をおいてからお試しください。`);
+  }
+}
+
+// ─── FILE PROCESS ────────────────────────────────────
+function processFile(file) {
+  if (!file || !file.type.startsWith('image/')) return;
+  if (state.imageURL) URL.revokeObjectURL(state.imageURL);
+  state.imageURL = URL.createObjectURL(file);
+  state.imageType = file.type;
+  const reader = new FileReader();
+  reader.onload = e => {
+    state.imageBase64 = e.target.result.split(',')[1];
+    renderUpload();
+  };
+  reader.readAsDataURL(file);
+}
+
+// ─── EVENT BINDING ───────────────────────────────────
+function bindEvents() {
+  // Age page
+  const ageInput = document.getElementById('ageInput');
+  if (ageInput) {
+    ageInput.addEventListener('input', e => {
+      state.age = e.target.value;
+      const btn = document.getElementById('btnAge');
+      if (btn) btn.disabled = !state.age || parseInt(state.age) < 18;
+    });
+    if (state.age) ageInput.dispatchEvent(new Event('input'));
+  }
+
+  const btnAge = document.getElementById('btnAge');
+  if (btnAge) {
+    btnAge.addEventListener('click', () => {
+      const v = parseInt(document.getElementById('ageInput')?.value);
+      if (isNaN(v) || v < 18) return;
+      state.age = v;
+      renderInstruction();
+    });
+  }
+
+  // Instruction page
+  const btnToUpload = document.getElementById('btnToUpload');
+  if (btnToUpload) btnToUpload.addEventListener('click', () => renderUpload());
+
+  const btnBackAge = document.getElementById('btnBackAge');
+  if (btnBackAge) btnBackAge.addEventListener('click', () => renderAge());
+
+  // Upload page
+  const cameraInput = document.getElementById('cameraInput');
+  if (cameraInput) cameraInput.addEventListener('change', e => processFile(e.target.files[0]));
+
+  const galleryInput = document.getElementById('galleryInput');
+  if (galleryInput) galleryInput.addEventListener('change', e => processFile(e.target.files[0]));
+
+  const uploadZone = document.getElementById('uploadZone');
+  if (uploadZone) {
+    uploadZone.addEventListener('dragover', e => { e.preventDefault(); uploadZone.classList.add('dragover'); });
+    uploadZone.addEventListener('dragleave', () => uploadZone.classList.remove('dragover'));
+    uploadZone.addEventListener('drop', e => {
+      e.preventDefault();
+      uploadZone.classList.remove('dragover');
+      processFile(e.dataTransfer.files[0]);
+    });
+  }
+
+  const btnAnalyze = document.getElementById('btnAnalyze');
+  if (btnAnalyze) btnAnalyze.addEventListener('click', analyze);
+
+  const btnClearImg = document.getElementById('btnClearImg');
+  if (btnClearImg) btnClearImg.addEventListener('click', () => {
+    state.imageURL = null;
+    state.imageBase64 = null;
+    state.imageType = null;
+    renderUpload();
+  });
+
+  const btnBackInst = document.getElementById('btnBackInst');
+  if (btnBackInst) btnBackInst.addEventListener('click', () => renderInstruction());
+
+  // Result page
+  const btnRetry = document.getElementById('btnRetry');
+  if (btnRetry) btnRetry.addEventListener('click', () => {
+    state.imageURL = null;
+    state.imageBase64 = null;
+    state.imageType = null;
+    state.result = '';
+    renderAge();
+  });
+}
+
+// ─── SETUP PAGE (初回のみ) ───────────────────────────
+function renderSetup() {
+  render(`
+    ${header()}
+    <div class="card">
+      <div style="text-align:center; margin-bottom:20px">
+        <div style="font-size:40px; margin-bottom:12px">🔑</div>
+        <div style="font-size:15px; color:#d4a8ff; letter-spacing:.1em; margin-bottom:8px">
+          初回設定（1回だけ）
+        </div>
+        <div style="font-size:13px; color:#a080c0; line-height:1.8">
+          無料のAPIキーを入力してください。<br>
+          次回からは不要です。
+        </div>
+      </div>
+
+      <div style="background:rgba(60,20,100,.5); border:1px solid rgba(150,80,200,.3); border-radius:14px; padding:16px; margin-bottom:18px; font-size:13px; color:#c8b0e8; line-height:1.8">
+        <strong style="color:#e8b4ff; display:block; margin-bottom:6px">📋 無料キーの取得方法</strong>
+        <ol style="margin-left:18px">
+          <li>ブラウザで <strong style="color:#e8b4ff">platform.claude.com</strong> を開く</li>
+          <li>ログイン → 左メニュー「API Keys」</li>
+          <li>「Create Key」をクリック</li>
+          <li>表示されたキー（sk-ant-...）をコピー</li>
+          <li>下に貼り付けて「保存」を押す</li>
+        </ol>
+      </div>
+
+      <input
+        id="setupKeyInput"
+        type="text"
+        placeholder="sk-ant-... を貼り付けてください"
+        style="
+          width:100%; padding:16px; margin-bottom:12px;
+          background:rgba(80,30,130,.4);
+          border:1.5px solid rgba(180,100,255,.35);
+          border-radius:14px; color:#f0e8ff;
+          font-size:14px; font-family:inherit;
+          outline:none; letter-spacing:.04em;
+        "
+      >
+      <div id="setupMsg" style="font-size:12px; color:#ff8080; text-align:center; min-height:18px; margin-bottom:10px"></div>
+
+      <button class="btn btn-primary btn-hover" id="btnSetupSave">
+        保存して始める
+      </button>
+    </div>
+  `);
+}
+
+async function saveSetup() {
+  const key = document.getElementById('setupKeyInput')?.value?.trim();
+  const msg = document.getElementById('setupMsg');
+  if (!key || !key.startsWith('sk-ant-')) {
+    msg.textContent = 'sk-ant- から始まるキーを入力してください';
+    return;
+  }
+  msg.style.color = '#a080c0';
+  msg.textContent = '保存中...';
+  try {
+    const res = await fetch('/api/setup', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ key }),
+    });
+    const data = await res.json();
+    if (data.ok) {
+      renderAge();
+    } else {
+      msg.style.color = '#ff8080';
+      msg.textContent = data.message || '保存に失敗しました';
+    }
+  } catch {
+    msg.style.color = '#ff8080';
+    msg.textContent = 'サーバーに接続できません。start.bat で起動してください。';
+  }
+}
+
+function renderQRFooter() { return ''; }
+function copyURL() {}
+
+// ─── INIT ────────────────────────────────────────────
+async function init() {
+  try {
+    const res = await fetch('/api/status');
+    const data = await res.json();
+    if (data.ready) {
+      renderAge();
+    } else {
+      renderSetup();
+    }
+  } catch {
+    renderAge();
+  }
+}
+
+// bindEvents にセットアップボタンを追加
+const _origBind = bindEvents;
+bindEvents = function() {
+  _origBind();
+  const btnSave = document.getElementById('btnSetupSave');
+  if (btnSave) btnSave.addEventListener('click', saveSetup);
+};
+
+init();
+</script>
+</body>
+</html>

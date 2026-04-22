@@ -1,0 +1,11 @@
+{
+  "name": "mimi-uranai",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "localtunnel": "^2.0.2"
+  }
+}
