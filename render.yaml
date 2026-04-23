@@ -1,0 +1,11 @@
+services:
+  - type: web
+    name: mimi-uranai
+    runtime: node
+    region: singapore
+    plan: free
+    buildCommand: npm install
+    startCommand: node server.js
+    envVars:
+      - key: ANTHROPIC_API_KEY
+        sync: false
