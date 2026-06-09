@@ -2,3 +2,4 @@
 node_modules
 cloudflared.exe
 *.bat
+data/

@@ -1,0 +1,817 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Instagram キーワード自動返信 管理画面</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --pink: #f472b6;
+      --pink-dark: #db2777;
+      --purple: #a855f7;
+      --purple-light: #e9d5ff;
+      --bg: linear-gradient(135deg, #fce7f3 0%, #ede9fe 50%, #fce7f3 100%);
+      --card: rgba(255,255,255,0.75);
+      --border: rgba(168,85,247,0.2);
+      --text: #1e1b4b;
+      --muted: #6b7280;
+      --success: #10b981;
+      --danger: #ef4444;
+      --warning: #f59e0b;
+    }
+
+    body {
+      font-family: "Hiragino Sans", "Noto Sans JP", sans-serif;
+      background: var(--bg);
+      min-height: 100vh;
+      color: var(--text);
+      padding-bottom: 3rem;
+    }
+
+    header {
+      background: linear-gradient(135deg, #db2777, #9333ea);
+      color: white;
+      padding: 1.5rem 1rem;
+      text-align: center;
+    }
+    header h1 { font-size: 1.4rem; font-weight: 800; }
+    header p { font-size: 0.85rem; opacity: 0.85; margin-top: 0.3rem; }
+
+    .tabs {
+      display: flex;
+      background: white;
+      border-bottom: 2px solid var(--border);
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+    .tab-btn {
+      flex: 1;
+      padding: 0.9rem 0.5rem;
+      border: none;
+      background: none;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--muted);
+      cursor: pointer;
+      border-bottom: 3px solid transparent;
+      margin-bottom: -2px;
+      transition: all 0.2s;
+    }
+    .tab-btn.active {
+      color: var(--purple);
+      border-bottom-color: var(--purple);
+    }
+
+    .tab-content { display: none; padding: 1rem; max-width: 700px; margin: 0 auto; }
+    .tab-content.active { display: block; }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 1rem;
+      padding: 1.25rem;
+      backdrop-filter: blur(12px);
+      margin-bottom: 1rem;
+    }
+    .card-title {
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--pink-dark);
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .form-group { margin-bottom: 1rem; }
+    .form-group label {
+      display: block;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--muted);
+      margin-bottom: 0.35rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    .form-group input,
+    .form-group textarea,
+    .form-group select {
+      width: 100%;
+      padding: 0.65rem 0.75rem;
+      border: 1.5px solid var(--border);
+      border-radius: 0.5rem;
+      font-size: 0.9rem;
+      background: rgba(255,255,255,0.9);
+      color: var(--text);
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .form-group input:focus,
+    .form-group textarea:focus,
+    .form-group select:focus {
+      border-color: var(--purple);
+    }
+    .form-group textarea { min-height: 80px; resize: vertical; }
+
+    .copy-field {
+      display: flex;
+      gap: 0.5rem;
+    }
+    .copy-field input { flex: 1; background: #f3f4f6; }
+    .btn-copy {
+      padding: 0.65rem 1rem;
+      background: var(--purple-light);
+      border: none;
+      border-radius: 0.5rem;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--purple);
+      cursor: pointer;
+      white-space: nowrap;
+    }
+    .btn-copy:hover { background: var(--purple); color: white; }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.65rem 1.25rem;
+      border: none;
+      border-radius: 0.6rem;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, #db2777, #9333ea);
+      color: white;
+    }
+    .btn-primary:hover { opacity: 0.9; transform: translateY(-1px); }
+    .btn-secondary {
+      background: white;
+      border: 1.5px solid var(--border);
+      color: var(--text);
+    }
+    .btn-secondary:hover { background: var(--purple-light); }
+    .btn-danger {
+      background: #fee2e2;
+      color: var(--danger);
+    }
+    .btn-danger:hover { background: var(--danger); color: white; }
+    .btn-sm { padding: 0.4rem 0.75rem; font-size: 0.8rem; }
+
+    .rule-card {
+      background: var(--card);
+      border: 1.5px solid var(--border);
+      border-radius: 0.75rem;
+      padding: 1rem;
+      margin-bottom: 0.75rem;
+      backdrop-filter: blur(8px);
+    }
+    .rule-card.disabled { opacity: 0.55; }
+    .rule-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 0.5rem;
+    }
+    .rule-name {
+      font-weight: 700;
+      font-size: 0.95rem;
+    }
+    .rule-meta {
+      font-size: 0.78rem;
+      color: var(--muted);
+      margin-top: 0.35rem;
+    }
+    .rule-keywords {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.35rem;
+      margin-top: 0.6rem;
+    }
+    .keyword-badge {
+      background: var(--purple-light);
+      color: var(--purple);
+      border-radius: 999px;
+      padding: 0.2rem 0.7rem;
+      font-size: 0.78rem;
+      font-weight: 600;
+    }
+    .rule-message {
+      margin-top: 0.6rem;
+      font-size: 0.83rem;
+      color: var(--text);
+      background: rgba(249,250,251,0.8);
+      border-radius: 0.5rem;
+      padding: 0.6rem 0.75rem;
+      border-left: 3px solid var(--pink);
+      white-space: pre-wrap;
+      word-break: break-all;
+    }
+    .rule-actions {
+      display: flex;
+      gap: 0.4rem;
+      margin-top: 0.75rem;
+    }
+
+    .toggle {
+      position: relative;
+      display: inline-block;
+      width: 44px;
+      height: 24px;
+      flex-shrink: 0;
+    }
+    .toggle input { opacity: 0; width: 0; height: 0; }
+    .toggle-slider {
+      position: absolute;
+      inset: 0;
+      background: #d1d5db;
+      border-radius: 999px;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+    .toggle-slider::before {
+      content: "";
+      position: absolute;
+      height: 18px;
+      width: 18px;
+      left: 3px;
+      top: 3px;
+      background: white;
+      border-radius: 50%;
+      transition: 0.2s;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+    }
+    .toggle input:checked + .toggle-slider { background: var(--purple); }
+    .toggle input:checked + .toggle-slider::before { transform: translateX(20px); }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.25rem;
+      padding: 0.2rem 0.6rem;
+      border-radius: 999px;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+    .badge-dm { background: #dbeafe; color: #2563eb; }
+    .badge-comment { background: #dcfce7; color: #16a34a; }
+
+    .empty-state {
+      text-align: center;
+      padding: 2.5rem 1rem;
+      color: var(--muted);
+    }
+    .empty-state .icon { font-size: 2.5rem; margin-bottom: 0.75rem; }
+    .empty-state p { font-size: 0.9rem; }
+
+    /* Modal */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.5);
+      z-index: 100;
+      padding: 1rem;
+      overflow-y: auto;
+    }
+    .modal-overlay.open { display: flex; align-items: flex-start; justify-content: center; }
+    .modal {
+      background: white;
+      border-radius: 1rem;
+      padding: 1.5rem;
+      width: 100%;
+      max-width: 500px;
+      margin-top: 2rem;
+    }
+    .modal-title {
+      font-size: 1.1rem;
+      font-weight: 700;
+      margin-bottom: 1.25rem;
+      color: var(--pink-dark);
+    }
+    .modal-actions {
+      display: flex;
+      gap: 0.5rem;
+      justify-content: flex-end;
+      margin-top: 1.25rem;
+    }
+
+    /* Logs */
+    .log-entry {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 0.6rem;
+      padding: 0.75rem;
+      margin-bottom: 0.5rem;
+      font-size: 0.82rem;
+    }
+    .log-header {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 0.4rem;
+    }
+    .log-status-ok { color: var(--success); font-weight: 700; }
+    .log-status-err { color: var(--danger); font-weight: 700; }
+    .log-time { color: var(--muted); font-size: 0.75rem; }
+    .log-rule { font-weight: 600; }
+    .log-detail { color: var(--muted); margin-top: 0.25rem; }
+    .log-text {
+      background: #f9fafb;
+      border-radius: 0.35rem;
+      padding: 0.3rem 0.5rem;
+      margin-top: 0.3rem;
+      font-style: italic;
+      color: #374151;
+      word-break: break-all;
+    }
+    .log-error {
+      color: var(--danger);
+      font-size: 0.78rem;
+      margin-top: 0.3rem;
+      background: #fee2e2;
+      padding: 0.3rem 0.5rem;
+      border-radius: 0.35rem;
+      word-break: break-all;
+    }
+
+    .alert {
+      padding: 0.75rem 1rem;
+      border-radius: 0.6rem;
+      font-size: 0.85rem;
+      margin-bottom: 1rem;
+    }
+    .alert-info { background: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe; }
+    .alert-success { background: #f0fdf4; color: #166534; border: 1px solid #bbf7d0; }
+    .alert-warn { background: #fffbeb; color: #92400e; border: 1px solid #fde68a; }
+
+    .step-list {
+      list-style: none;
+      counter-reset: step;
+    }
+    .step-list li {
+      counter-increment: step;
+      padding: 0.5rem 0 0.5rem 2.5rem;
+      position: relative;
+      font-size: 0.85rem;
+      border-bottom: 1px solid #f3f4f6;
+    }
+    .step-list li:last-child { border-bottom: none; }
+    .step-list li::before {
+      content: counter(step);
+      position: absolute;
+      left: 0;
+      top: 0.5rem;
+      width: 1.6rem;
+      height: 1.6rem;
+      background: var(--purple);
+      color: white;
+      border-radius: 50%;
+      font-size: 0.75rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    @media (max-width: 480px) {
+      header h1 { font-size: 1.1rem; }
+      .tab-btn { font-size: 0.78rem; padding: 0.75rem 0.25rem; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>📱 Instagram キーワード自動返信</h1>
+  <p>特定ワードのコメントに自動でDM・返信を送信するシステム</p>
+</header>
+
+<nav class="tabs">
+  <button class="tab-btn active" onclick="switchTab('settings')">⚙️ 設定</button>
+  <button class="tab-btn" onclick="switchTab('rules')">📋 ルール</button>
+  <button class="tab-btn" onclick="switchTab('logs')">📊 ログ</button>
+</nav>
+
+<!-- ━━━━━━━━━━━━━ 設定タブ ━━━━━━━━━━━━━ -->
+<div id="tab-settings" class="tab-content active">
+
+  <div class="card" id="setup-guide">
+    <div class="card-title">🚀 セットアップ手順</div>
+    <ol class="step-list">
+      <li><a href="https://developers.facebook.com" target="_blank">Meta for Developers</a> でアプリを作成し、Instagram Graph API を追加</li>
+      <li>「Instagram ビジネスアカウント」または「クリエイターアカウント」に接続</li>
+      <li>Webhook を設定：<br>URL: <code id="webhook-url-inline" style="font-size:0.8rem;word-break:break-all;background:#f3f4f6;padding:2px 5px;border-radius:3px;"></code><br>購読フィールド: <code>comments</code></li>
+      <li>以下のパーミッションを付与：<code>instagram_manage_comments</code>、<code>instagram_manage_messages</code></li>
+      <li>ページアクセストークンと Instagram アカウント ID を下のフォームに入力して保存</li>
+    </ol>
+  </div>
+
+  <div class="card">
+    <div class="card-title">🔗 Webhook 設定</div>
+
+    <div class="form-group">
+      <label>Webhook URL（Meta Console に貼り付け）</label>
+      <div class="copy-field">
+        <input type="text" id="webhook-url" readonly />
+        <button class="btn-copy" onclick="copyField('webhook-url')">コピー</button>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label>確認トークン（Verify Token）</label>
+      <div class="copy-field">
+        <input type="text" id="verify-token-display" readonly placeholder="設定を保存すると生成されます" />
+        <button class="btn-copy" onclick="copyField('verify-token-display')">コピー</button>
+      </div>
+      <p style="font-size:0.75rem;color:var(--muted);margin-top:0.3rem;">Meta Console の「トークンの確認」に同じ値を入力してください</p>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">🔑 Instagram API 設定</div>
+
+    <div class="form-group">
+      <label>ページアクセストークン</label>
+      <input type="password" id="page-access-token" placeholder="EAAxxxxxxxx..." autocomplete="off" />
+      <p style="font-size:0.75rem;color:var(--muted);margin-top:0.3rem;">Graph API Explorer で取得（<code>instagram_manage_messages</code> / <code>instagram_manage_comments</code> 権限が必要）</p>
+    </div>
+
+    <div class="form-group">
+      <label>Instagram アカウント ID（数字）</label>
+      <input type="text" id="ig-account-id" placeholder="123456789012345" />
+      <p style="font-size:0.75rem;color:var(--muted);margin-top:0.3rem;"><code>GET /{page-id}?fields=instagram_business_account</code> で確認できます</p>
+    </div>
+
+    <div id="save-result"></div>
+    <button class="btn btn-primary" onclick="saveConfig()">💾 設定を保存</button>
+  </div>
+
+</div>
+
+<!-- ━━━━━━━━━━━━━ ルールタブ ━━━━━━━━━━━━━ -->
+<div id="tab-rules" class="tab-content">
+
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;">
+    <p style="font-size:0.85rem;color:var(--muted);">コメントのキーワードに反応するルールを設定します</p>
+    <button class="btn btn-primary btn-sm" onclick="openRuleModal()">＋ ルール追加</button>
+  </div>
+
+  <div id="rules-list"></div>
+
+</div>
+
+<!-- ━━━━━━━━━━━━━ ログタブ ━━━━━━━━━━━━━ -->
+<div id="tab-logs" class="tab-content">
+
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;">
+    <p style="font-size:0.85rem;color:var(--muted);">自動返信の実行履歴（最新500件）</p>
+    <button class="btn btn-danger btn-sm" onclick="clearLogs()">🗑 クリア</button>
+  </div>
+
+  <div id="logs-list"></div>
+
+</div>
+
+<!-- ━━━━━━━━━━━━━ ルール追加/編集 モーダル ━━━━━━━━━━━━━ -->
+<div id="rule-modal" class="modal-overlay" onclick="closeModalOutside(event)">
+  <div class="modal">
+    <div class="modal-title" id="modal-title">ルールを追加</div>
+
+    <div class="form-group">
+      <label>ルール名</label>
+      <input type="text" id="m-name" placeholder="例: LINE誘導" />
+    </div>
+
+    <div class="form-group">
+      <label>キーワード（カンマ区切り）</label>
+      <input type="text" id="m-keywords" placeholder="例: LINE, ライン, 詳細" />
+      <p style="font-size:0.75rem;color:var(--muted);margin-top:0.3rem;">複数入力可。「いずれか」か「すべて」を含む場合に発動</p>
+    </div>
+
+    <div class="form-group">
+      <label>マッチ条件</label>
+      <select id="m-match-type">
+        <option value="any">いずれかのキーワードを含む（OR）</option>
+        <option value="all">すべてのキーワードを含む（AND）</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label>返信タイプ</label>
+      <select id="m-reply-type">
+        <option value="dm">DM（ダイレクトメッセージ）</option>
+        <option value="comment">コメント返信（公開）</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label>送信するメッセージ</label>
+      <textarea id="m-message" placeholder="コメントありがとうございます！&#10;詳しくはこちらをご覧ください→ https://..."></textarea>
+    </div>
+
+    <div id="modal-error" style="display:none;" class="alert alert-warn"></div>
+
+    <div class="modal-actions">
+      <button class="btn btn-secondary" onclick="closeRuleModal()">キャンセル</button>
+      <button class="btn btn-primary" onclick="saveRule()">保存</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  let editingRuleId = null;
+
+  // ── タブ切り替え ──────────────────────────────────────
+  function switchTab(name) {
+    document.querySelectorAll(".tab-btn").forEach((b, i) => {
+      b.classList.toggle("active", ["settings","rules","logs"][i] === name);
+    });
+    document.querySelectorAll(".tab-content").forEach(t => t.classList.remove("active"));
+    document.getElementById("tab-" + name).classList.add("active");
+    if (name === "rules") loadRules();
+    if (name === "logs") loadLogs();
+  }
+
+  // ── Webhook URL 設定 ──────────────────────────────────
+  function getWebhookUrl() {
+    return location.origin + "/webhook";
+  }
+
+  // ── 設定の読み込みと保存 ──────────────────────────────
+  async function loadConfig() {
+    const url = getWebhookUrl();
+    document.getElementById("webhook-url").value = url;
+    document.getElementById("webhook-url-inline").textContent = url;
+
+    try {
+      const r = await fetch("/api/ig/config");
+      const cfg = await r.json();
+      if (cfg.verifyToken) {
+        document.getElementById("verify-token-display").value = cfg.verifyToken;
+      }
+      if (cfg.pageAccessToken) {
+        document.getElementById("page-access-token").placeholder = cfg.pageAccessToken;
+      }
+      if (cfg.instagramAccountId) {
+        document.getElementById("ig-account-id").value = cfg.instagramAccountId;
+      }
+    } catch {}
+  }
+
+  async function saveConfig() {
+    const token = document.getElementById("page-access-token").value.trim();
+    const igId = document.getElementById("ig-account-id").value.trim();
+    const body = { instagramAccountId: igId };
+    if (token) body.pageAccessToken = token;
+
+    const el = document.getElementById("save-result");
+    try {
+      const r = await fetch("/api/ig/config", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body)
+      });
+      const d = await r.json();
+      if (d.ok) {
+        el.innerHTML = '<div class="alert alert-success">✅ 保存しました</div>';
+        if (d.verifyToken) {
+          document.getElementById("verify-token-display").value = d.verifyToken;
+        }
+        document.getElementById("page-access-token").value = "";
+        document.getElementById("page-access-token").placeholder = "保存済み（末尾4桁のみ表示）";
+      } else {
+        el.innerHTML = '<div class="alert alert-warn">⚠ 保存に失敗しました</div>';
+      }
+    } catch {
+      el.innerHTML = '<div class="alert alert-warn">⚠ 通信エラーが発生しました</div>';
+    }
+    setTimeout(() => { el.innerHTML = ""; }, 4000);
+  }
+
+  // ── ルール管理 ────────────────────────────────────────
+  async function loadRules() {
+    const container = document.getElementById("rules-list");
+    try {
+      const r = await fetch("/api/ig/rules");
+      const rules = await r.json();
+      if (!rules.length) {
+        container.innerHTML = `
+          <div class="empty-state">
+            <div class="icon">📋</div>
+            <p>ルールがまだありません<br>「＋ ルール追加」からルールを作成してください</p>
+          </div>`;
+        return;
+      }
+      container.innerHTML = rules.map(rule => renderRule(rule)).join("");
+    } catch {
+      container.innerHTML = '<div class="alert alert-warn">⚠ ルールの読み込みに失敗しました</div>';
+    }
+  }
+
+  function renderRule(rule) {
+    const typeBadge = rule.replyType === "dm"
+      ? '<span class="badge badge-dm">💬 DM</span>'
+      : '<span class="badge badge-comment">💬 返信</span>';
+    const matchLabel = rule.matchType === "all" ? "AND" : "OR";
+    const keywords = (rule.keywords || []).map(k =>
+      `<span class="keyword-badge">${escHtml(k)}</span>`
+    ).join("");
+    const created = rule.createdAt ? new Date(rule.createdAt).toLocaleDateString("ja-JP") : "";
+    const disabledClass = rule.enabled ? "" : " disabled";
+
+    return `
+      <div class="rule-card${disabledClass}" id="rule-${rule.id}">
+        <div class="rule-header">
+          <div style="flex:1">
+            <div class="rule-name">${escHtml(rule.name || "無名ルール")}</div>
+            <div class="rule-meta">${typeBadge} &nbsp;${matchLabel} &nbsp;作成日: ${created}</div>
+          </div>
+          <label class="toggle" title="${rule.enabled ? "有効（クリックで無効化）" : "無効（クリックで有効化）"}">
+            <input type="checkbox" ${rule.enabled ? "checked" : ""} onchange="toggleRule('${rule.id}', this.checked)" />
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+        <div class="rule-keywords">${keywords}</div>
+        <div class="rule-message">${escHtml(rule.message || "")}</div>
+        <div class="rule-actions">
+          <button class="btn btn-secondary btn-sm" onclick="openRuleModal('${rule.id}')">✏️ 編集</button>
+          <button class="btn btn-danger btn-sm" onclick="deleteRule('${rule.id}')">🗑 削除</button>
+        </div>
+      </div>`;
+  }
+
+  async function toggleRule(id, enabled) {
+    await fetch(`/api/ig/rules/${id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ enabled })
+    });
+    loadRules();
+  }
+
+  async function deleteRule(id) {
+    if (!confirm("このルールを削除しますか？")) return;
+    await fetch(`/api/ig/rules/${id}`, { method: "DELETE" });
+    loadRules();
+  }
+
+  // ── ルールモーダル ────────────────────────────────────
+  function openRuleModal(ruleId) {
+    editingRuleId = ruleId || null;
+    clearModal();
+
+    if (ruleId) {
+      document.getElementById("modal-title").textContent = "ルールを編集";
+      fetch(`/api/ig/rules`).then(r => r.json()).then(rules => {
+        const rule = rules.find(r => r.id === ruleId);
+        if (!rule) return;
+        document.getElementById("m-name").value = rule.name || "";
+        document.getElementById("m-keywords").value = (rule.keywords || []).join(", ");
+        document.getElementById("m-match-type").value = rule.matchType || "any";
+        document.getElementById("m-reply-type").value = rule.replyType || "dm";
+        document.getElementById("m-message").value = rule.message || "";
+      });
+    } else {
+      document.getElementById("modal-title").textContent = "ルールを追加";
+    }
+
+    document.getElementById("rule-modal").classList.add("open");
+  }
+
+  function closeRuleModal() {
+    document.getElementById("rule-modal").classList.remove("open");
+    editingRuleId = null;
+  }
+
+  function closeModalOutside(e) {
+    if (e.target === document.getElementById("rule-modal")) closeRuleModal();
+  }
+
+  function clearModal() {
+    ["m-name","m-keywords","m-message"].forEach(id => {
+      document.getElementById(id).value = "";
+    });
+    document.getElementById("m-match-type").value = "any";
+    document.getElementById("m-reply-type").value = "dm";
+    document.getElementById("modal-error").style.display = "none";
+  }
+
+  async function saveRule() {
+    const name = document.getElementById("m-name").value.trim();
+    const keywordsRaw = document.getElementById("m-keywords").value;
+    const keywords = keywordsRaw.split(",").map(k => k.trim()).filter(Boolean);
+    const matchType = document.getElementById("m-match-type").value;
+    const replyType = document.getElementById("m-reply-type").value;
+    const message = document.getElementById("m-message").value.trim();
+    const errEl = document.getElementById("modal-error");
+
+    if (!name) { showModalError("ルール名を入力してください"); return; }
+    if (!keywords.length) { showModalError("キーワードを1つ以上入力してください"); return; }
+    if (!message) { showModalError("メッセージを入力してください"); return; }
+
+    errEl.style.display = "none";
+    const body = { name, keywords, matchType, replyType, message };
+
+    try {
+      if (editingRuleId) {
+        await fetch(`/api/ig/rules/${editingRuleId}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(body)
+        });
+      } else {
+        await fetch("/api/ig/rules", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(body)
+        });
+      }
+      closeRuleModal();
+      loadRules();
+    } catch {
+      showModalError("保存に失敗しました");
+    }
+  }
+
+  function showModalError(msg) {
+    const el = document.getElementById("modal-error");
+    el.textContent = msg;
+    el.style.display = "block";
+  }
+
+  // ── ログ管理 ──────────────────────────────────────────
+  async function loadLogs() {
+    const container = document.getElementById("logs-list");
+    try {
+      const r = await fetch("/api/ig/logs");
+      const logs = await r.json();
+      if (!logs.length) {
+        container.innerHTML = `
+          <div class="empty-state">
+            <div class="icon">📊</div>
+            <p>まだログがありません<br>キーワードに反応したコメントがあるとここに表示されます</p>
+          </div>`;
+        return;
+      }
+      container.innerHTML = logs.map(log => renderLog(log)).join("");
+    } catch {
+      container.innerHTML = '<div class="alert alert-warn">⚠ ログの読み込みに失敗しました</div>';
+    }
+  }
+
+  function renderLog(log) {
+    const time = new Date(log.timestamp).toLocaleString("ja-JP");
+    const statusClass = log.sent ? "log-status-ok" : "log-status-err";
+    const statusText = log.sent ? "✅ 送信成功" : "❌ 送信失敗";
+    const typeLabel = log.replyType === "dm" ? "DM" : "返信";
+    const user = log.commenterUsername ? `@${escHtml(log.commenterUsername)}` : log.commenterId || "不明";
+    return `
+      <div class="log-entry">
+        <div class="log-header">
+          <span class="${statusClass}">${statusText}</span>
+          <span class="log-time">${time}</span>
+        </div>
+        <div class="log-rule">ルール: ${escHtml(log.ruleName || log.ruleId)} &nbsp;[${typeLabel}]</div>
+        <div class="log-detail">コメント者: ${user}</div>
+        <div class="log-text">"${escHtml(log.commentText || "")}"</div>
+        ${log.error ? `<div class="log-error">エラー: ${escHtml(log.error)}</div>` : ""}
+      </div>`;
+  }
+
+  async function clearLogs() {
+    if (!confirm("ログをすべて削除しますか？")) return;
+    await fetch("/api/ig/logs", { method: "DELETE" });
+    loadLogs();
+  }
+
+  // ── ユーティリティ ────────────────────────────────────
+  function escHtml(str) {
+    return String(str)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;");
+  }
+
+  function copyField(id) {
+    const el = document.getElementById(id);
+    navigator.clipboard.writeText(el.value).then(() => {
+      const btn = el.nextElementSibling;
+      const orig = btn.textContent;
+      btn.textContent = "✅ コピー済";
+      setTimeout(() => { btn.textContent = orig; }, 2000);
+    });
+  }
+
+  // ── 初期化 ────────────────────────────────────────────
+  loadConfig();
+</script>
+</body>
+</html>
