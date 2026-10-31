@@ -122,6 +122,17 @@ const server = http.createServer((req, res) => {
     return;
   }
 
+  // ── GET /2027 → year2027.html ──
+  if (req.method === "GET" && (req.url === "/2027" || req.url === "/year2027.html")) {
+    const file = path.join(__dirname, "year2027.html");
+    fs.readFile(file, (err, data) => {
+      if (err) { res.writeHead(404); res.end("Not found"); return; }
+      res.writeHead(200, { "Content-Type": "text/html; charset=utf-8" });
+      res.end(data);
+    });
+    return;
+  }
+
   res.writeHead(404);
   res.end("Not found");
 });

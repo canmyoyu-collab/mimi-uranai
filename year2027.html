@@ -1,0 +1,742 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>2027年 イヤーナンバー占い ✨</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+  :root {
+    --primary: #d4728a;
+    --primary-light: #e8909a;
+    --primary-deep: #c05878;
+    --second: #8a6fb8;
+    --second-light: #a98fd4;
+    --second-deep: #715399;
+    --text: #5a2d42;
+    --text-sub: #a06070;
+    --text-body: #4a2535;
+  }
+
+  body {
+    min-height: 100vh;
+    background: linear-gradient(160deg, #f9e4ee 0%, #f2c8dc 40%, #fde8f2 70%, #fdf0f8 100%);
+    font-family: 'Hiragino Sans', 'Noto Sans JP', sans-serif;
+    color: var(--text);
+    overflow-x: hidden;
+  }
+
+  #stars { position: fixed; inset: 0; pointer-events: none; z-index: 0; }
+  .star {
+    position: absolute; border-radius: 50%; background: #e8a0c0;
+    animation: twinkle var(--dur) ease-in-out infinite var(--delay);
+  }
+
+  @keyframes twinkle { 0%,100%{opacity:.2} 50%{opacity:.9} }
+  @keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-10px)} }
+  @keyframes shimmer { 0%{background-position:0% 50%} 100%{background-position:200% 50%} }
+  @keyframes fadeUp { from{opacity:0;transform:translateY(24px)} to{opacity:1;transform:translateY(0)} }
+  @keyframes pulse { 0%,100%{box-shadow:0 0 0 0 rgba(138,111,184,.4)} 70%{box-shadow:0 0 0 16px rgba(138,111,184,0)} }
+  @keyframes bounce { 0%,80%,100%{transform:scale(0)} 40%{transform:scale(1)} }
+
+  .wrap {
+    max-width: 480px;
+    margin: 0 auto;
+    padding: 28px 16px 48px;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* ──── HEADER ──── */
+  .header { text-align: center; margin-bottom: 28px; }
+  .header-icon {
+    font-size: 50px;
+    display: inline-block;
+    animation: float 4s ease-in-out infinite;
+    margin-bottom: 8px;
+  }
+  .title {
+    font-size: 24px;
+    font-weight: 400;
+    letter-spacing: .16em;
+    background: linear-gradient(90deg, var(--primary-deep), var(--primary-light), var(--second), var(--primary-deep));
+    background-size: 200%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: shimmer 6s linear infinite;
+    margin-bottom: 4px;
+  }
+  .subtitle { font-size: 12px; letter-spacing: .3em; color: #b07085; }
+  .divider {
+    margin: 12px auto;
+    width: 60px; height: 1px;
+    background: linear-gradient(90deg, transparent, #e8a0b5, transparent);
+  }
+
+  /* ──── CARD ──── */
+  .card {
+    background: rgba(255,255,255,.7);
+    backdrop-filter: blur(16px);
+    border: 1px solid rgba(220,150,175,.3);
+    border-radius: 24px;
+    padding: 26px 20px;
+    margin-bottom: 20px;
+    animation: fadeUp .5s ease both;
+    box-shadow: 0 4px 24px rgba(200,100,130,.1);
+  }
+  .card-title {
+    font-size: 15px;
+    letter-spacing: .1em;
+    color: var(--primary-deep);
+    margin-bottom: 16px;
+    text-align: center;
+    font-weight: 600;
+  }
+  .card-lead {
+    font-size: 13px;
+    line-height: 1.9;
+    color: var(--text-body);
+  }
+
+  /* ──── GLOBAL YEAR ──── */
+  .global {
+    background: rgba(243,238,252,.75);
+    border-color: rgba(138,111,184,.3);
+    text-align: center;
+  }
+  .global .card-title { color: var(--second-deep); }
+  .global-num {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 64px; height: 64px; border-radius: 50%;
+    font-size: 32px; font-weight: 700; color: #fff;
+    background: linear-gradient(135deg, var(--second-light), var(--second));
+    margin-bottom: 12px;
+    animation: pulse 2.4s ease-in-out infinite;
+  }
+  .global .card-lead { text-align: left; }
+
+  /* ──── INPUT ──── */
+  .birth-row { display: flex; gap: 10px; margin-bottom: 12px; }
+  .field { flex: 1; position: relative; }
+  .field select {
+    width: 100%;
+    padding: 16px 38px 16px 16px;
+    background: rgba(255,240,245,.8);
+    border: 1.5px solid rgba(212,114,138,.4);
+    border-radius: 16px;
+    color: var(--text);
+    font-size: 20px;
+    font-family: inherit;
+    text-align: center;
+    text-align-last: center;
+    outline: none;
+    -webkit-appearance: none;
+    appearance: none;
+    transition: border-color .3s;
+  }
+  .field select:focus { border-color: var(--primary); }
+  .field span {
+    position: absolute; right: 14px; top: 50%; transform: translateY(-50%);
+    color: var(--text-sub); font-size: 14px; pointer-events: none;
+  }
+  .hint { font-size: 12px; color: var(--text-sub); text-align: center; line-height: 1.7; }
+
+  /* ──── BUTTONS ──── */
+  .btn {
+    width: 100%;
+    padding: 16px;
+    border: none;
+    border-radius: 50px;
+    font-size: 16px;
+    font-family: inherit;
+    letter-spacing: .15em;
+    cursor: pointer;
+    transition: all .25s;
+    display: block;
+    text-align: center;
+    text-decoration: none;
+  }
+  .btn-primary {
+    background: linear-gradient(135deg, #d4728a, #e8909a, #c05878);
+    color: #fff;
+    box-shadow: 0 4px 16px rgba(212,114,138,.35);
+  }
+  .btn-primary:hover:not(:disabled) { transform: scale(1.02); box-shadow: 0 6px 20px rgba(212,114,138,.5); }
+  .btn-primary:disabled { opacity: .5; cursor: not-allowed; }
+  .btn-secondary {
+    background: rgba(255,240,245,.6);
+    border: 1.5px solid rgba(212,114,138,.3);
+    color: var(--text-sub);
+    margin-top: 10px;
+    font-size: 14px;
+  }
+  .btn-secondary:hover { background: rgba(255,220,235,.8); }
+
+  /* ──── LOADING ──── */
+  .loading { text-align: center; padding: 40px 0; }
+  .loading-num {
+    font-size: 54px; display: inline-block;
+    animation: float 1.6s ease-in-out infinite;
+    margin-bottom: 18px;
+  }
+  .loading-text { font-size: 14px; letter-spacing: .15em; color: var(--text-sub); margin-bottom: 18px; }
+  .dots { display: flex; justify-content: center; gap: 8px; }
+  .dots span {
+    width: 10px; height: 10px; border-radius: 50%; background: var(--primary);
+    animation: bounce 1.4s ease-in-out infinite both;
+  }
+  .dots span:nth-child(1) { animation-delay: -.32s; }
+  .dots span:nth-child(2) { animation-delay: -.16s; }
+
+  /* ──── RESULT ──── */
+  .result-hero { text-align: center; }
+  .calc {
+    font-size: 13px; color: var(--text-sub); letter-spacing: .05em;
+    background: rgba(255,235,242,.7);
+    border-radius: 50px; padding: 8px 14px;
+    display: inline-block; margin-bottom: 18px;
+  }
+  .combo {
+    display: flex; align-items: center; justify-content: center; gap: 12px;
+    margin-bottom: 14px;
+  }
+  .combo-ball {
+    width: 72px; height: 72px; border-radius: 50%;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    color: #fff; font-weight: 700; line-height: 1;
+  }
+  .combo-ball b { font-size: 32px; }
+  .combo-ball small { font-size: 9px; font-weight: 400; letter-spacing: .05em; margin-top: 4px; }
+  .ball-global { background: linear-gradient(135deg, var(--second-light), var(--second)); }
+  .ball-personal {
+    width: 88px; height: 88px;
+    background: linear-gradient(135deg, var(--primary-light), var(--primary-deep));
+    animation: pulse 2.4s ease-in-out infinite;
+  }
+  .ball-personal b { font-size: 40px; }
+  .combo-x { font-size: 20px; color: var(--text-sub); }
+  .theme-name {
+    font-size: 20px; letter-spacing: .12em; color: var(--primary-deep);
+    font-weight: 600; margin-bottom: 4px;
+  }
+  .theme-keys { font-size: 12px; color: var(--text-sub); letter-spacing: .1em; margin-bottom: 16px; }
+  .result-hero .card-lead { text-align: left; }
+
+  .step-card {
+    background: linear-gradient(135deg, rgba(212,114,138,.92), rgba(138,111,184,.92));
+    color: #fff;
+    border: none;
+  }
+  .step-card .card-title { color: #fff; }
+  .step-card .step-text { font-size: 16px; line-height: 1.8; text-align: center; font-weight: 600; }
+  .step-card .step-sub { font-size: 12px; line-height: 1.8; text-align: center; margin-top: 10px; opacity: .9; }
+
+  .topic-head {
+    display: flex; align-items: center; gap: 10px;
+    margin-bottom: 12px;
+  }
+  .topic-icon {
+    width: 40px; height: 40px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px;
+    background: rgba(255,235,242,.9);
+    flex-shrink: 0;
+  }
+  .topic-title { font-size: 16px; font-weight: 600; color: var(--primary-deep); letter-spacing: .1em; }
+  .topic-catch { font-size: 12px; color: var(--text-sub); }
+  .action {
+    margin-top: 14px;
+    background: rgba(243,238,252,.8);
+    border: 1px solid rgba(138,111,184,.25);
+    border-radius: 16px;
+    padding: 12px 14px;
+    font-size: 13px;
+    line-height: 1.8;
+    color: var(--second-deep);
+  }
+  .action b { display: block; font-size: 11px; letter-spacing: .15em; margin-bottom: 2px; }
+
+  .lucky { display: flex; gap: 10px; }
+  .lucky div {
+    flex: 1; text-align: center;
+    background: rgba(255,235,242,.7);
+    border-radius: 16px; padding: 12px 6px;
+  }
+  .lucky small { display: block; font-size: 11px; color: var(--text-sub); letter-spacing: .1em; margin-bottom: 4px; }
+  .lucky span { font-size: 14px; font-weight: 600; color: var(--primary-deep); }
+
+  .closing { font-size: 13px; line-height: 2; color: var(--text-body); }
+  .sign { text-align: right; font-size: 12px; color: var(--text-sub); margin-top: 14px; letter-spacing: .1em; }
+
+  .footer-link {
+    display: block; text-align: center; margin-top: 18px;
+    font-size: 12px; color: var(--text-sub); letter-spacing: .1em;
+  }
+</style>
+</head>
+<body>
+<div id="stars"></div>
+<div class="wrap" id="app"></div>
+
+<script>
+// ─── STARS ───────────────────────────────────────────
+const starsEl = document.getElementById('stars');
+for (let i = 0; i < 45; i++) {
+  const s = document.createElement('div');
+  s.className = 'star';
+  const size = i % 6 === 0 ? 3 : 2;
+  s.style.cssText = `
+    left:${Math.random()*100}%;
+    top:${Math.random()*100}%;
+    width:${size}px; height:${size}px;
+    --dur:${2+Math.random()*3}s;
+    --delay:-${Math.random()*3}s;
+    opacity:${.3+Math.random()*.5};
+  `;
+  starsEl.appendChild(s);
+}
+
+// ─── NUMEROLOGY ──────────────────────────────────────
+const YEAR = 2027;
+
+// 1〜9 になるまで各桁を足す
+function reduce(n) {
+  while (n > 9) n = String(n).split('').reduce((a, d) => a + Number(d), 0);
+  return n;
+}
+
+const GLOBAL_NUMBER = reduce(YEAR); // 2+0+2+7 = 11 → 2
+
+// パーソナルイヤーナンバー = 誕生月 + 誕生日 + グローバルイヤーナンバー
+function personalYear(month, day) {
+  const sum = month + day + GLOBAL_NUMBER;
+  const steps = [`${month} + ${day} + ${GLOBAL_NUMBER} = ${sum}`];
+  let n = sum;
+  while (n > 9) {
+    const digits = String(n).split('');
+    n = digits.reduce((a, d) => a + Number(d), 0);
+    steps.push(`${digits.join('+')} = ${n}`);
+  }
+  return { number: n, calc: steps.join(' → ') };
+}
+
+// ─── MESSAGES (グローバル2 × パーソナル1〜9) ──────────
+const MESSAGES = {
+  1: {
+    theme: '始まりの年',
+    keys: '新スタート・種まき・自分軸',
+    message: '9年サイクルの「1年目」。真っ白なノートを開くような、新しい物語のスタートです！しかも2027年は「つながり」の2の年。ひとりで頑張るスタートではなく、応援してくれる人と手を取り合って始められる、とっても恵まれた一年なんですよ。「やってみたい」と思った気持ちが、今年いちばんの羅針盤です。',
+    step: '「ずっとやりたかったこと」を1つ、誰かに宣言しちゃいましょう！',
+    stepSub: '口に出した瞬間から、2の年のサポート運が動き出しますよ。',
+    work: {
+      catch: '小さく始めて、仲間を増やす',
+      text: '新しい企画、転職、副業、資格の勉強…何かを「始める」ことに最高のタイミングです。完璧な準備ができてからではなく、6割の段階で動き出してOK！2の年は協力者が現れやすいので、ひとりで抱え込まずに「一緒にやりませんか？」と声をかけてみてくださいね。',
+      action: '気になっている講座やイベントに、今月中に申し込む',
+    },
+    health: {
+      catch: '新しい習慣をひとつだけ',
+      text: '始まりのエネルギーが強いぶん、張り切りすぎて息切れしやすいのが1の年。大きな目標より「朝に白湯を飲む」「寝る前に3分ストレッチ」など、小さな習慣をひとつ始めるのがおすすめです。続けられた自分をたくさん褒めてあげてくださいね！',
+      action: '朝の5分を「自分のための時間」にする',
+    },
+    love: {
+      catch: '自分から一歩、素直な気持ちで',
+      text: '新しい出会いの扉が開く年です！受け身で待つより、あなたから「はじめまして」を言うほど運が味方します。パートナーがいる方は、二人で新しいことを始めると絆がぐっと深まりますよ。駆け引きは不要、素直な「いいな」が一番の魅力です。',
+      action: '気になる人に、自分からひと言メッセージを送る',
+    },
+    lucky: { color: 'レッド', item: '新しい手帳' },
+    closing: '1の年は「始めた人」から運が開きます。不安があっても大丈夫ですよ！2027年は、あなたの一歩を支えてくれる人が必ず近くにいます。今年まいた種は、この先9年かけて大きな花を咲かせますからね。',
+  },
+  2: {
+    theme: '調和と育みの年',
+    keys: '協力・寄り添い・受け取る',
+    message: 'グローバルイヤー2とパーソナルイヤー2が重なる、「2×2」のダブル調和イヤー！世の中の流れとあなたの流れがぴったり同じリズムで動く、とても特別な一年です。急いで結果を出すより、人とのご縁や気持ちを丁寧に育てるほど、驚くほどスムーズに物事が進みますよ。',
+    step: 'いつもお世話になっている人に「ありがとう」を伝えましょう！',
+    stepSub: '感謝の一言が、今年のご縁と幸運をどんどん連れてきます。',
+    work: {
+      catch: '主役より名サポーターに',
+      text: '今年は「誰と組むか」が成功のカギ。チームワークや調整役で、あなたの優しさと気配りが光ります。前に出ることより、周りの人を活かすことで評価が上がる年なんです。焦って結果を求めなくて大丈夫、信頼の貯金がしっかり育っていますよ！',
+      action: '一緒に働く人の「いいところ」を1つ言葉にして伝える',
+    },
+    health: {
+      catch: '人に合わせすぎず、自分も大切に',
+      text: '人の気持ちを感じ取りやすい年なので、気づかないうちに気疲れしがち。胃腸や睡眠に出やすいので、温かい飲み物やゆっくりお風呂につかる時間を意識してくださいね。「NO」と言っても大丈夫、あなたが元気でいることが一番の思いやりですよ！',
+      action: '週に1回、誰にも合わせない「ひとり時間」を予定に入れる',
+    },
+    love: {
+      catch: '安心できるご縁がやってくる',
+      text: 'パートナーシップ運が一年を通して最高潮！刺激的な恋より、一緒にいてホッとできる人との関係が育ちます。シングルの方は、紹介や友人のつながりからの出会いに◎。パートナーがいる方は、相手の話をじっくり聞くだけで愛がぐんと深まりますよ。',
+      action: '友人に「いい人いたら紹介してね」と気軽に声をかける',
+    },
+    lucky: { color: 'ベビーピンク', item: 'おそろいの小物' },
+    closing: '2×2の年は「受け取ること」も大切なテーマです。差し出された手を遠慮せずに握ってみてくださいね。あなたが人を大切にしてきたぶん、今年はたくさんの優しさが返ってきますよ！',
+  },
+  3: {
+    theme: '表現と楽しみの年',
+    keys: '発信・遊び心・ひろがり',
+    message: '明るく楽しいエネルギーにあふれた「3の年」！あなたの笑顔や言葉が、まわりの人をどんどん元気にします。そこに2の「つながり」が重なるので、楽しんでいるあなたの周りに自然と人が集まる一年に。「好き」を素直に表現するほど、チャンスが広がりますよ！',
+    step: '「好きなこと」を1つ、SNSや身近な人に発信してみましょう！',
+    stepSub: 'あなたの「楽しい」が、新しいご縁を呼び込みます。',
+    work: {
+      catch: 'アイデアと言葉で輝く',
+      text: '企画・発信・接客など、表現する場面で才能が開花する年です。会議で思いついたアイデアは、遠慮せずに口に出してみてくださいね！2の年は共感してくれる仲間が見つかりやすいので、「一緒に面白いことしよう」の輪が広がりますよ。',
+      action: 'ひらめいたアイデアをメモして、1つ誰かに話してみる',
+    },
+    health: {
+      catch: '笑顔とおしゃべりが最高の薬',
+      text: '楽しいお誘いが多くなるぶん、夜更かしや食べすぎに要注意！とはいえ、我慢しすぎるとエネルギーがしぼんでしまう年でもあります。よく笑って、よく話して、声を出すことが心と体のデトックスに。カラオケやダンスもおすすめですよ！',
+      action: '月に1回は「思いっきり笑える予定」を入れる',
+    },
+    love: {
+      catch: '楽しい人のところに恋がくる',
+      text: 'モテ期の気配あり！楽しそうにしているあなたが一番魅力的に見える年です。趣味の集まりやイベントでの出会いに◎。パートナーとは、ふたりで新しい遊びに出かけると関係が若返りますよ。気持ちは言葉にするほど伝わります！',
+      action: '気になる人を、気軽な楽しいイベントに誘ってみる',
+    },
+    lucky: { color: 'イエロー', item: 'お気に入りのリップ' },
+    closing: '3の年は「楽しんだもの勝ち」の一年です！あなたが笑っていることが、周りの人への一番のギフトになりますよ。完璧じゃなくて大丈夫、思いっきり楽しんじゃいましょう！',
+  },
+  4: {
+    theme: '土台づくりの年',
+    keys: '安定・継続・仕組み化',
+    message: 'これからの人生を支える「土台」をつくる4の年。派手さはないけれど、ここで積み上げたものが、あなたの一生の財産になる大切な一年です。2の年の後押しで、ひとりで背負い込まなくても、協力し合いながら着実に形にしていけますよ。コツコツは裏切りません！',
+    step: '「1日5分」でできる小さな積み重ねを、今日から始めましょう！',
+    stepSub: '完璧な準備より、小さな行動。それが4の年の成功法則です。',
+    work: {
+      catch: 'コツコツが信頼に変わる',
+      text: '日々の仕事を丁寧に積み重ねることで、確かな評価と信頼が得られる年です。業務の仕組み化や、スキルの基礎固めにもぴったり。「ちゃんとしなきゃ」で動きが止まりそうになったら、まず小さく一歩！頼れる人に任せることも、立派な仕組みづくりですよ。',
+      action: '毎日の仕事の中で「仕組み化できること」を1つ見つける',
+    },
+    health: {
+      catch: '生活リズムを整える年',
+      text: '体の土台を整えるのに最適な年です。睡眠・食事・運動の基本を、無理のない範囲で整えていきましょう。頑張りすぎると肩こりや腰の疲れに出やすいので、こまめに体をほぐしてあげてくださいね。健康診断や歯のメンテナンスもこの年に！',
+      action: '寝る時間と起きる時間を、まず1週間そろえてみる',
+    },
+    love: {
+      catch: '誠実さが一番の魅力',
+      text: '一時的なときめきより、将来を見据えた安定した関係が育つ年です。条件も大切ですが、一緒にいて「心地いい」と感じる感覚もぜひ大事にしてくださいね。パートナーとは将来の話や暮らしの計画を一緒に立てると、絆がしっかり深まりますよ。',
+      action: '「どんな毎日を過ごしたいか」を紙に書き出してみる',
+    },
+    lucky: { color: 'グリーン', item: 'お気に入りのマグカップ' },
+    closing: '4の年は、今すぐ結果が見えなくても大丈夫な年です。今年積み上げたひとつひとつが、来年以降のあなたをしっかり支えてくれますよ。自分のペースを信じて、一歩ずつ進んでいきましょう！',
+  },
+  5: {
+    theme: '変化と挑戦の年',
+    keys: '自由・行動・新しい世界',
+    message: 'ワクワクする変化がやってくる5の年！環境、人間関係、考え方…いろんなことがアップデートされる一年です。変化はちょっと怖いかもしれませんが、大丈夫ですよ。2の年の流れが「人とのつながり」でクッションになってくれるので、思い切って飛び込んでも、ちゃんと支えてもらえます！',
+    step: '行ったことのない場所に、1つ足を運んでみましょう！',
+    stepSub: '新しい景色が、あなたの中の新しい可能性を目覚めさせます。',
+    work: {
+      catch: 'フットワークの軽さが武器',
+      text: '異動・転職・独立・新しい分野への挑戦など、変化を味方につけられる年です。いつもと違うやり方を試したり、新しい人と組んだりすると、思わぬチャンスが舞い込みますよ。迷ったら「ワクワクするほう」を選んでみてくださいね！',
+      action: '普段話さない部署や業界の人と、1回話してみる',
+    },
+    health: {
+      catch: '動いて、巡らせる',
+      text: '行動力が高まるぶん、予定を詰め込みすぎて疲れをためやすい年。体を動かすことで気の巡りがよくなるので、ウォーキングや旅先でのお散歩がおすすめです。変化が多い時期こそ、ぐっすり眠れる環境づくりを大切にしてくださいね。',
+      action: 'いつもと違う道を歩いて、体と気分をリフレッシュ',
+    },
+    love: {
+      catch: '出会いは外の世界に',
+      text: '外に出れば出るほど出会いが増える年！旅行、習い事、新しいコミュニティなど、行動範囲を広げることがご縁のカギです。焦って決めなくて大丈夫、あなたの自由を丸ごと認めてくれる人を見極めてくださいね。パートナーとは小旅行が◎ですよ！',
+      action: '新しいコミュニティや習い事に、1つ参加してみる',
+    },
+    lucky: { color: 'ターコイズブルー', item: 'スニーカー' },
+    closing: '5の年は「動いた人」に新しい扉が開きます。変化を怖がらなくて大丈夫ですよ！あなたにはどんな環境でも楽しめる力があります。思い切って、新しい世界へ飛び込んじゃいましょう！',
+  },
+  6: {
+    theme: '愛と調和の年',
+    keys: '家族・癒し・愛を注ぐ',
+    message: '愛のエネルギーが満ちる6の年。家族やパートナー、大切な人との絆が深まる、あたたかな一年です。2の年の「調和」と6の「愛」が重なって、2027年はまさに"愛情運"のハーモニー！あなたが注いだ優しさが、何倍にもなって返ってくる年ですよ。',
+    step: '大切な人と過ごす時間を、まず1つ予定に入れましょう！',
+    stepSub: '「会いたいな」と思った人に連絡するのが、今年の開運アクションです。',
+    work: {
+      catch: '人を育て、場を整える',
+      text: '後輩の育成やチームのケアなど、人を支える役割で力を発揮する年です。職場を居心地よく整えることも運気アップに。ただ、責任感から引き受けすぎてしまいがちなので要注意！「助けて」と言える人ほど、まわりとの信頼が深まりますよ。',
+      action: '頑張っている人に「ありがとう」「助かったよ」を伝える',
+    },
+    health: {
+      catch: '自分を癒すことも愛のうち',
+      text: '人のために動きすぎて、自分のケアが後回しになりやすい年です。好きな香りや音楽、お花など「心がほどけるもの」をそばに置いてくださいね。心が満たされると体も元気に。美容やセルフケアに時間をかけるのも大正解ですよ！',
+      action: 'お風呂タイムに好きな香りを取り入れる',
+    },
+    love: {
+      catch: '相思相愛のご縁が育つ',
+      text: '結婚・同棲・家族づくりなど、愛を形にするのに最高のタイミング！シングルの方は、あたたかい家庭を一緒に築ける人との出会いが期待できますよ。パートナーがいる方は、家での何気ない時間を大切にするほど愛が深まります。',
+      action: '理想の家庭やパートナーシップを、言葉にしてみる',
+    },
+    lucky: { color: 'ローズピンク', item: '生花' },
+    closing: '6の年は、あなたの「愛する力」が最大限に輝く一年です。誰かを大切にするのと同じくらい、自分のことも大切にしてあげてくださいね。愛があふれるあなたなら大丈夫ですよ！',
+  },
+  7: {
+    theme: '内省と学びの年',
+    keys: '自分と向き合う・学び・充電',
+    message: '9年サイクルの中で「ひと休み」と「深まり」の7の年。外に向かって走るより、自分の内側を見つめ、本当に大切なものを確かめる一年です。2の年の流れの中で、信頼できる少人数の人と深くつながることで、心がふっと軽くなりますよ。立ち止まることも、立派な前進です！',
+    step: '自分のためだけの「学びの時間」をスケジュールに入れましょう！',
+    stepSub: '本1冊、講座1つから。知ることが、次の飛躍の準備になります。',
+    work: {
+      catch: '専門性を磨くチャンス',
+      text: '量より質、広さより深さの年です。資格の勉強や専門スキルを磨くのにぴったり！じっくり考える仕事や分析で力を発揮しますよ。無理に人脈を広げなくて大丈夫、信頼できる人に相談するだけで、ヒントがちゃんと見つかります。',
+      action: '気になっている分野の本を1冊読み切る',
+    },
+    health: {
+      catch: '心と体をしっかり充電',
+      text: '心身のメンテナンスに最適な年です。疲れを感じたら、しっかり休むことを自分に許してあげてくださいね。瞑想、ヨガ、自然の中でのお散歩など、静かな時間がエネルギーを回復させてくれます。デジタルデトックスもおすすめですよ！',
+      action: '寝る前の30分はスマホを置いて、ゆっくり過ごす',
+    },
+    love: {
+      catch: '安心して本音を話せる人と',
+      text: '深い心のつながりを求める年です。たくさんの出会いより、本音で話せる一人を大切にしてくださいね。自分の「聖域」を理解してくれる人との縁が育ちますよ。パートナーとは、ゆっくり語り合う時間が絆を深めてくれます。',
+      action: '信頼できる人と、ゆっくり本音で話す時間をつくる',
+    },
+    lucky: { color: 'ラベンダー', item: 'ノートとペン' },
+    closing: '7の年は、自分自身と仲良くなる一年です。ゆっくりでも大丈夫ですよ！今年じっくり深めたものが、来年の大きな飛躍のエネルギーになります。あなたの内側にある答えを、信じてあげてくださいね。',
+  },
+  8: {
+    theme: '実りと達成の年',
+    keys: '成果・豊かさ・パワー',
+    message: 'これまでの頑張りが「実り」として返ってくる8の年！仕事、お金、評価…パワフルに結果がついてくる、とても力強い一年です。2の年のサポート運が重なるので、ひとりで戦わなくても、仲間と一緒に大きな目標を達成できますよ。遠慮せずに、ほしいものを手に入れちゃいましょう！',
+    step: '2027年に「手に入れたいもの」を、具体的に書き出しましょう！',
+    stepSub: '目標がはっきりするほど、8の年のパワーがまっすぐ届きます。',
+    work: {
+      catch: '成果と評価を受け取る年',
+      text: '昇進、昇給、大きなプロジェクトなど、キャリアの飛躍が期待できる年です！これまで積み上げてきたことに自信を持ってくださいね。2の年は頼れる協力者も現れるので、上手に周りを巻き込むことで、成果がさらに大きくなりますよ。',
+      action: '自分の実績を棚卸しして、評価される場で伝える',
+    },
+    health: {
+      catch: '全力のあとは、しっかりゆるめる',
+      text: 'エネルギッシュに動ける年ですが、頑張りすぎて気づいたら疲れがピーク…ということも。マッサージや温泉など、体をしっかりゆるめる時間をご褒美として予定に入れてくださいね。体が資本、メンテナンスへの投資は大正解ですよ！',
+      action: '頑張ったご褒美に、ボディケアの予約を入れる',
+    },
+    love: {
+      catch: '頼られるだけじゃなく、甘えてみる',
+      text: '魅力が増して、恋愛でも主導権をとりやすい年です。直球アプローチが成功しやすいですよ！ただ、頼られる側になりがちなので、たまには甘えることも忘れずに。あなたがホッとできる「戻る場所」になってくれる人が、本当のパートナーです。',
+      action: '「ありがとう、助かる」と、素直に甘えてみる',
+    },
+    lucky: { color: 'ゴールド', item: '上質なお財布' },
+    closing: '8の年は、あなたが受け取る番です！これまでの努力は、ちゃんと形になって返ってきますよ。遠慮せず、堂々と豊かさを受け取ってくださいね。あなたにはその価値があります！',
+  },
+  9: {
+    theme: '完成と手放しの年',
+    keys: '感謝・手放し・次への準備',
+    message: '9年サイクルの「最終章」となる9の年。これまでの9年間を振り返り、いらないものを手放して、次の新しいサイクルへの準備をする一年です。2の年の優しい流れが、お別れや卒業もあたたかく包んでくれますよ。手放すことは失うことではなく、新しい幸せの入るスペースをつくることです！',
+    step: 'もう必要のないものを、1つ手放しましょう！',
+    stepSub: 'クローゼットの1着からでOK。軽くなるほど、2028年の新しい扉が近づきます。',
+    work: {
+      catch: '集大成と次の準備',
+      text: 'これまでの仕事を仕上げ、集大成をつくるのにぴったりの年です。区切りをつけたいことがあれば、今年中に丁寧に完了させましょう。後輩への引き継ぎや、経験を人に教えることで、あなたの知恵がたくさんの人の役に立ちますよ。',
+      action: 'やり残していることを1つ、きちんと完了させる',
+    },
+    health: {
+      catch: 'デトックスで軽やかに',
+      text: '心と体のデトックスに最適な年です。たまった疲れや、ため込んだ感情を手放していきましょう。お部屋の片づけや、ゆっくり汗をかくことで、驚くほど気分がすっきりしますよ。涙が出るときは、我慢せず流しちゃって大丈夫です！',
+      action: '週末に1か所、引き出しやクローゼットを片づける',
+    },
+    love: {
+      catch: '過去を卒業して、新しい愛へ',
+      text: '過去の恋や執着を手放すと、新しい愛が入ってくる年です。忘れられない人がいる方も、今年は心の整理をするチャンス。パートナーとは、これまでの感謝を伝え合うことで、関係が新しいステージへ進みますよ。来年からの新しい出会いの準備も整います！',
+      action: '過去の恋に「ありがとう」を言って、心の中で卒業する',
+    },
+    lucky: { color: 'ホワイト', item: '香りのいいハンドクリーム' },
+    closing: '9の年は、これまで頑張ってきたあなたへの「おつかれさま」の一年です。手放したぶんだけ、2028年からの新しい物語が輝きますよ。感謝の気持ちで、軽やかに次の扉へ進んでいきましょう！',
+  },
+};
+
+// ─── STATE ───────────────────────────────────────────
+const state = { step: 'input', month: '', day: '' };
+
+// ─── RENDER HELPERS ──────────────────────────────────
+const app = document.getElementById('app');
+
+function render(html) {
+  app.innerHTML = html;
+  window.scrollTo(0, 0);
+  bindEvents();
+}
+
+function header() {
+  return `<div class="header">
+    <div class="header-icon">🌙</div>
+    <div class="title">2027 イヤーナンバー</div>
+    <div class="subtitle">～ あなたの一歩を後押しする数秘 ～</div>
+    <div class="divider"></div>
+  </div>`;
+}
+
+function daysInMonth(m) {
+  return [31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31][m - 1] || 31;
+}
+
+function options(max, selected) {
+  let html = '<option value="">--</option>';
+  for (let i = 1; i <= max; i++) {
+    html += `<option value="${i}" ${String(i) === String(selected) ? 'selected' : ''}>${i}</option>`;
+  }
+  return html;
+}
+
+// ─── PAGES ───────────────────────────────────────────
+function renderInput() {
+  render(`
+    ${header()}
+    <div class="card global">
+      <div class="card-title">2027年のグローバルイヤーナンバー</div>
+      <div class="global-num">${GLOBAL_NUMBER}</div>
+      <div class="hint" style="margin-bottom:12px">2 + 0 + 2 + 7 = 11 → 1 + 1 = ${GLOBAL_NUMBER}</div>
+      <div class="card-lead">
+        2027年は、世界全体が<b>「2」＝調和・協力・つながり</b>のエネルギーに包まれる年。
+        ひとりで頑張るより、誰かと手を取り合うことで物事が動き出します。
+        そんな2の流れの中で、あなたの一年はどんなテーマになるのか、のぞいてみましょう！
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">あなたの誕生日を教えてください！</div>
+      <div class="birth-row">
+        <div class="field">
+          <select id="monthSel" aria-label="誕生月">${options(12, state.month)}</select>
+          <span>月</span>
+        </div>
+        <div class="field">
+          <select id="daySel" aria-label="誕生日">${options(state.month ? daysInMonth(Number(state.month)) : 31, state.day)}</select>
+          <span>日</span>
+        </div>
+      </div>
+      <div class="hint">誕生月 ＋ 誕生日 ＋ ${GLOBAL_NUMBER}（2027年）を<br>1〜9になるまで足して、あなたのナンバーを出します</div>
+    </div>
+
+    <button class="btn btn-primary" id="btnCalc" ${state.month && state.day ? '' : 'disabled'}>
+      2027年のナンバーを見る　→
+    </button>
+    <a class="footer-link" href="/">👂 耳占い婚活診断はこちら</a>
+  `);
+}
+
+function renderLoading() {
+  render(`
+    ${header()}
+    <div class="card loading">
+      <div class="loading-num">🔮</div>
+      <div class="loading-text">あなたの2027年を読み解いています…</div>
+      <div class="dots"><span></span><span></span><span></span></div>
+    </div>
+  `);
+  setTimeout(renderResult, 1600);
+}
+
+function topicCard(icon, title, t, delay) {
+  return `<div class="card" style="animation-delay:${delay}s">
+    <div class="topic-head">
+      <div class="topic-icon">${icon}</div>
+      <div>
+        <div class="topic-title">${title}</div>
+        <div class="topic-catch">${t.catch}</div>
+      </div>
+    </div>
+    <div class="card-lead">${t.text}</div>
+    <div class="action"><b>✦ 今日からできる一歩</b>${t.action}</div>
+  </div>`;
+}
+
+function renderResult() {
+  const month = Number(state.month);
+  const day = Number(state.day);
+  const { number, calc } = personalYear(month, day);
+  const m = MESSAGES[number];
+
+  render(`
+    ${header()}
+    <div class="card result-hero">
+      <div class="calc">${calc}</div>
+      <div class="combo">
+        <div class="combo-ball ball-global"><b>${GLOBAL_NUMBER}</b><small>グローバル</small></div>
+        <div class="combo-x">×</div>
+        <div class="combo-ball ball-personal"><b>${number}</b><small>パーソナル</small></div>
+      </div>
+      <div class="theme-name">${m.theme}</div>
+      <div class="theme-keys">${m.keys}</div>
+      <div class="card-lead">${m.message}</div>
+    </div>
+
+    <div class="card step-card" style="animation-delay:.1s">
+      <div class="card-title">👣 2027年、最初の一歩</div>
+      <div class="step-text">${m.step}</div>
+      <div class="step-sub">${m.stepSub}</div>
+    </div>
+
+    ${topicCard('💼', '仕事', m.work, .2)}
+    ${topicCard('🌿', '健康', m.health, .3)}
+    ${topicCard('💗', '恋愛', m.love, .4)}
+
+    <div class="card" style="animation-delay:.5s">
+      <div class="card-title">🍀 2027年のラッキー</div>
+      <div class="lucky">
+        <div><small>カラー</small><span>${m.lucky.color}</span></div>
+        <div><small>アイテム</small><span>${m.lucky.item}</span></div>
+      </div>
+    </div>
+
+    <div class="card" style="animation-delay:.6s">
+      <div class="card-title">💌 あなたへのメッセージ</div>
+      <div class="closing">${m.closing}</div>
+      <div class="sign">美容数秘鑑定 YUKI</div>
+    </div>
+
+    <button class="btn btn-primary" id="btnRetry">別の誕生日で占う</button>
+    <button class="btn btn-secondary" id="btnShare">結果をシェアする</button>
+    <a class="footer-link" href="/">👂 耳占い婚活診断はこちら</a>
+  `);
+}
+
+// ─── EVENTS ──────────────────────────────────────────
+function bindEvents() {
+  const monthSel = document.getElementById('monthSel');
+  const daySel = document.getElementById('daySel');
+  const btnCalc = document.getElementById('btnCalc');
+
+  function updateBtn() {
+    if (btnCalc) btnCalc.disabled = !(state.month && state.day);
+  }
+
+  if (monthSel) {
+    monthSel.addEventListener('change', e => {
+      state.month = e.target.value;
+      const max = state.month ? daysInMonth(Number(state.month)) : 31;
+      if (Number(state.day) > max) state.day = '';
+      daySel.innerHTML = options(max, state.day);
+      updateBtn();
+    });
+  }
+  if (daySel) {
+    daySel.addEventListener('change', e => {
+      state.day = e.target.value;
+      updateBtn();
+    });
+  }
+  if (btnCalc) btnCalc.addEventListener('click', renderLoading);
+
+  const btnRetry = document.getElementById('btnRetry');
+  if (btnRetry) btnRetry.addEventListener('click', renderInput);
+
+  const btnShare = document.getElementById('btnShare');
+  if (btnShare) {
+    btnShare.addEventListener('click', async () => {
+      const { number } = personalYear(Number(state.month), Number(state.day));
+      const text = `私の2027年はパーソナルイヤーナンバー${number}「${MESSAGES[number].theme}」でした✨\nグローバルイヤー2×あなたのナンバーで占う、2027年の一歩を後押しする数秘🌙`;
+      const url = location.href;
+      try {
+        if (navigator.share) {
+          await navigator.share({ title: '2027年 イヤーナンバー占い', text, url });
+        } else {
+          await navigator.clipboard.writeText(`${text}\n${url}`);
+          btnShare.textContent = 'コピーしました！';
+        }
+      } catch {}
+    });
+  }
+}
+
+renderInput();
+</script>
+</body>
+</html>
