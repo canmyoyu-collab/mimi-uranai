@@ -192,15 +192,9 @@
 
   /* ──── RESULT ──── */
   .result-hero { text-align: center; }
-  .calc {
-    font-size: 13px; color: var(--text-sub); letter-spacing: .05em;
-    background: rgba(255,235,242,.7);
-    border-radius: 50px; padding: 8px 14px;
-    display: inline-block; margin-bottom: 18px;
-  }
   .combo {
     display: flex; align-items: center; justify-content: center; gap: 12px;
-    margin-bottom: 14px;
+    margin: 4px 0 14px;
   }
   .combo-ball {
     width: 72px; height: 72px; border-radius: 50%;
@@ -270,6 +264,39 @@
   .closing { font-size: 13px; line-height: 2; color: var(--text-body); }
   .sign { text-align: right; font-size: 12px; color: var(--text-sub); margin-top: 14px; letter-spacing: .1em; }
 
+  /* ──── SHARE ──── */
+  .share-panel {
+    display: none;
+    margin-top: 12px;
+    background: rgba(255,255,255,.8);
+    border: 1px solid rgba(220,150,175,.3);
+    border-radius: 20px;
+    padding: 18px 16px;
+    animation: fadeUp .3s ease;
+  }
+  .share-panel.open { display: block; }
+  .share-preview {
+    font-size: 12px; line-height: 1.8; color: var(--text-body);
+    background: rgba(255,235,242,.7);
+    border-radius: 14px; padding: 12px 14px;
+    margin-bottom: 14px;
+    white-space: pre-wrap;
+    user-select: all; -webkit-user-select: all;
+  }
+  .share-btns { display: flex; gap: 8px; }
+  .share-btn {
+    flex: 1;
+    padding: 12px 4px;
+    border: none; border-radius: 50px;
+    font-size: 13px; font-family: inherit; font-weight: 600;
+    color: #fff; cursor: pointer;
+    text-align: center; text-decoration: none;
+  }
+  .share-line { background: #06c755; }
+  .share-x { background: #222; }
+  .share-copy { background: linear-gradient(135deg, var(--second-light), var(--second)); }
+  .share-msg { font-size: 12px; color: var(--primary-deep); text-align: center; min-height: 18px; margin-top: 10px; }
+
   .footer-link {
     display: block; text-align: center; margin-top: 18px;
     font-size: 12px; color: var(--text-sub); letter-spacing: .1em;
@@ -311,15 +338,7 @@ const GLOBAL_NUMBER = reduce(YEAR); // 2+0+2+7 = 11 → 2
 
 // パーソナルイヤーナンバー = 誕生月 + 誕生日 + グローバルイヤーナンバー
 function personalYear(month, day) {
-  const sum = month + day + GLOBAL_NUMBER;
-  const steps = [`${month} + ${day} + ${GLOBAL_NUMBER} = ${sum}`];
-  let n = sum;
-  while (n > 9) {
-    const digits = String(n).split('');
-    n = digits.reduce((a, d) => a + Number(d), 0);
-    steps.push(`${digits.join('+')} = ${n}`);
-  }
-  return { number: n, calc: steps.join(' → ') };
+  return reduce(month + day + GLOBAL_NUMBER);
 }
 
 // ─── MESSAGES (グローバル2 × パーソナル1〜9) ──────────
@@ -586,7 +605,6 @@ function renderInput() {
     <div class="card global">
       <div class="card-title">2027年のグローバルイヤーナンバー</div>
       <div class="global-num">${GLOBAL_NUMBER}</div>
-      <div class="hint" style="margin-bottom:12px">2 + 0 + 2 + 7 = 11 → 1 + 1 = ${GLOBAL_NUMBER}</div>
       <div class="card-lead">
         2027年は、世界全体が<b>「2」＝調和・協力・つながり</b>のエネルギーに包まれる年。
         ひとりで頑張るより、誰かと手を取り合うことで物事が動き出します。
@@ -606,7 +624,7 @@ function renderInput() {
           <span>日</span>
         </div>
       </div>
-      <div class="hint">誕生月 ＋ 誕生日 ＋ ${GLOBAL_NUMBER}（2027年）を<br>1〜9になるまで足して、あなたのナンバーを出します</div>
+      <div class="hint">誕生日から、あなたの2027年のナンバーを読み解きます</div>
     </div>
 
     <button class="btn btn-primary" id="btnCalc" ${state.month && state.day ? '' : 'disabled'}>
@@ -628,6 +646,35 @@ function renderLoading() {
   setTimeout(renderResult, 1600);
 }
 
+function shareText(number) {
+  const url = IS_FILE ? '' : `\n${location.href}`;
+  return `私の2027年は、イヤーナンバー「2 × ${number}」の「${MESSAGES[number].theme}」でした✨\n${MESSAGES[number].step}\n#2027年イヤーナンバー #美容数秘鑑定YUKI${url}`;
+}
+
+function escapeHtml(str) {
+  return str.replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+}
+
+// クリップボードAPIが使えない環境(アプリ内ブラウザ等)でもコピーできるようにする
+async function copyText(text) {
+  try {
+    await navigator.clipboard.writeText(text);
+    return true;
+  } catch {
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    ta.setAttribute('readonly', '');
+    ta.style.cssText = 'position:fixed;top:0;left:0;opacity:0';
+    document.body.appendChild(ta);
+    ta.select();
+    ta.setSelectionRange(0, text.length);
+    let ok = false;
+    try { ok = document.execCommand('copy'); } catch {}
+    document.body.removeChild(ta);
+    return ok;
+  }
+}
+
 function topicCard(icon, title, t, delay) {
   return `<div class="card" style="animation-delay:${delay}s">
     <div class="topic-head">
@@ -645,13 +692,12 @@ function topicCard(icon, title, t, delay) {
 function renderResult() {
   const month = Number(state.month);
   const day = Number(state.day);
-  const { number, calc } = personalYear(month, day);
+  const number = personalYear(month, day);
   const m = MESSAGES[number];
 
   render(`
     ${header()}
     <div class="card result-hero">
-      <div class="calc">${calc}</div>
       <div class="combo">
         <div class="combo-ball ball-global"><b>${GLOBAL_NUMBER}</b><small>グローバル</small></div>
         <div class="combo-x">×</div>
@@ -688,6 +734,15 @@ function renderResult() {
 
     <button class="btn btn-primary" id="btnRetry">別の誕生日で占う</button>
     <button class="btn btn-secondary" id="btnShare">結果をシェアする</button>
+    <div class="share-panel" id="sharePanel">
+      <div class="share-preview" id="sharePreview">${escapeHtml(shareText(number))}</div>
+      <div class="share-btns">
+        <a class="share-btn share-line" target="_blank" rel="noopener" href="https://line.me/R/share?text=${encodeURIComponent(shareText(number))}">LINE</a>
+        <a class="share-btn share-x" target="_blank" rel="noopener" href="https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText(number))}">X</a>
+        <button class="share-btn share-copy" id="btnCopy">コピー</button>
+      </div>
+      <div class="share-msg" id="shareMsg"></div>
+    </div>
     ${earLink}
   `);
 }
@@ -724,18 +779,20 @@ function bindEvents() {
 
   const btnShare = document.getElementById('btnShare');
   if (btnShare) {
-    btnShare.addEventListener('click', async () => {
-      const { number } = personalYear(Number(state.month), Number(state.day));
-      const text = `私の2027年はパーソナルイヤーナンバー${number}「${MESSAGES[number].theme}」でした✨\nグローバルイヤー2×あなたのナンバーで占う、2027年の一歩を後押しする数秘🌙`;
-      const url = IS_FILE ? '' : location.href;
-      try {
-        if (navigator.share) {
-          await navigator.share(url ? { title: '2027年 イヤーナンバー占い', text, url } : { title: '2027年 イヤーナンバー占い', text });
-        } else {
-          await navigator.clipboard.writeText(url ? `${text}\n${url}` : text);
-          btnShare.textContent = 'コピーしました！';
-        }
-      } catch {}
+    btnShare.addEventListener('click', () => {
+      const panel = document.getElementById('sharePanel');
+      panel.classList.toggle('open');
+      if (panel.classList.contains('open')) panel.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    });
+  }
+
+  const btnCopy = document.getElementById('btnCopy');
+  if (btnCopy) {
+    btnCopy.addEventListener('click', async () => {
+      const ok = await copyText(shareText(personalYear(Number(state.month), Number(state.day))));
+      document.getElementById('shareMsg').textContent = ok
+        ? 'コピーしました！SNSやLINEに貼りつけてくださいね'
+        : '上の文章を長押しして、コピーしてくださいね';
     });
   }
 }
