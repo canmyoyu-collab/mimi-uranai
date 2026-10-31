@@ -292,8 +292,6 @@
     color: #fff; cursor: pointer;
     text-align: center; text-decoration: none;
   }
-  .share-line { background: #06c755; }
-  .share-x { background: #222; }
   .share-copy { background: linear-gradient(135deg, var(--second-light), var(--second)); }
   .share-msg { font-size: 12px; color: var(--primary-deep); text-align: center; min-height: 18px; margin-top: 10px; }
 
@@ -561,9 +559,12 @@ const MESSAGES = {
   },
 };
 
-// ファイルを直接開いたとき(file://)は、サーバー用のリンクとURLを使わない
-const IS_FILE = location.protocol === 'file:';
-const earLink = IS_FILE ? '' : '<a class="footer-link" href="/">👂 耳占い婚活診断はこちら</a>';
+// 耳占いサイト
+const EAR_SITE_URL = 'https://mimi-suuhi.netlify.app';
+const earLink = `<a class="footer-link" href="${EAR_SITE_URL}" target="_blank" rel="noopener">👂 耳占いはこちら</a>`;
+
+// Webで公開しているときだけ、このページのURLをシェア文に入れる
+const PAGE_URL = /^https?:$/.test(location.protocol) ? location.href : '';
 
 // ─── STATE ───────────────────────────────────────────
 const state = { step: 'input', month: '', day: '' };
@@ -647,8 +648,8 @@ function renderLoading() {
 }
 
 function shareText(number) {
-  const url = IS_FILE ? '' : `\n${location.href}`;
-  return `私の2027年は、イヤーナンバー「2 × ${number}」の「${MESSAGES[number].theme}」でした✨\n${MESSAGES[number].step}\n#2027年イヤーナンバー #美容数秘鑑定YUKI${url}`;
+  const url = PAGE_URL ? `\n${PAGE_URL}` : '';
+  return `私の2027年は、イヤーナンバー「2 × ${number}」の「${MESSAGES[number].theme}」でした✨\n${MESSAGES[number].step}${url}\n\n👂 耳占いはこちら\n${EAR_SITE_URL}\n#2027年イヤーナンバー #美容数秘鑑定YUKI`;
 }
 
 function escapeHtml(str) {
@@ -737,9 +738,7 @@ function renderResult() {
     <div class="share-panel" id="sharePanel">
       <div class="share-preview" id="sharePreview">${escapeHtml(shareText(number))}</div>
       <div class="share-btns">
-        <a class="share-btn share-line" target="_blank" rel="noopener" href="https://line.me/R/share?text=${encodeURIComponent(shareText(number))}">LINE</a>
-        <a class="share-btn share-x" target="_blank" rel="noopener" href="https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText(number))}">X</a>
-        <button class="share-btn share-copy" id="btnCopy">コピー</button>
+        <button class="share-btn share-copy" id="btnCopy">文章をコピーする</button>
       </div>
       <div class="share-msg" id="shareMsg"></div>
     </div>
