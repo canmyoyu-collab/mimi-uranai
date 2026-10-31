@@ -542,6 +542,10 @@ const MESSAGES = {
   },
 };
 
+// ファイルを直接開いたとき(file://)は、サーバー用のリンクとURLを使わない
+const IS_FILE = location.protocol === 'file:';
+const earLink = IS_FILE ? '' : '<a class="footer-link" href="/">👂 耳占い婚活診断はこちら</a>';
+
 // ─── STATE ───────────────────────────────────────────
 const state = { step: 'input', month: '', day: '' };
 
@@ -608,7 +612,7 @@ function renderInput() {
     <button class="btn btn-primary" id="btnCalc" ${state.month && state.day ? '' : 'disabled'}>
       2027年のナンバーを見る　→
     </button>
-    <a class="footer-link" href="/">👂 耳占い婚活診断はこちら</a>
+    ${earLink}
   `);
 }
 
@@ -684,7 +688,7 @@ function renderResult() {
 
     <button class="btn btn-primary" id="btnRetry">別の誕生日で占う</button>
     <button class="btn btn-secondary" id="btnShare">結果をシェアする</button>
-    <a class="footer-link" href="/">👂 耳占い婚活診断はこちら</a>
+    ${earLink}
   `);
 }
 
@@ -723,12 +727,12 @@ function bindEvents() {
     btnShare.addEventListener('click', async () => {
       const { number } = personalYear(Number(state.month), Number(state.day));
       const text = `私の2027年はパーソナルイヤーナンバー${number}「${MESSAGES[number].theme}」でした✨\nグローバルイヤー2×あなたのナンバーで占う、2027年の一歩を後押しする数秘🌙`;
-      const url = location.href;
+      const url = IS_FILE ? '' : location.href;
       try {
         if (navigator.share) {
-          await navigator.share({ title: '2027年 イヤーナンバー占い', text, url });
+          await navigator.share(url ? { title: '2027年 イヤーナンバー占い', text, url } : { title: '2027年 イヤーナンバー占い', text });
         } else {
-          await navigator.clipboard.writeText(`${text}\n${url}`);
+          await navigator.clipboard.writeText(url ? `${text}\n${url}` : text);
           btnShare.textContent = 'コピーしました！';
         }
       } catch {}
