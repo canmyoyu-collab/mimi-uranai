@@ -295,9 +295,26 @@
   .share-copy { background: linear-gradient(135deg, var(--second-light), var(--second)); }
   .share-msg { font-size: 12px; color: var(--primary-deep); text-align: center; min-height: 18px; margin-top: 10px; }
 
-  .footer-link {
-    display: block; text-align: center; margin-top: 18px;
-    font-size: 12px; color: var(--text-sub); letter-spacing: .1em;
+  .link-row { display: flex; gap: 10px; margin-top: 18px; }
+  .link-btn {
+    flex: 1;
+    padding: 13px 6px;
+    border-radius: 50px;
+    font-size: 13px; font-weight: 600; letter-spacing: .05em;
+    text-align: center; text-decoration: none;
+    transition: transform .2s;
+  }
+  .link-btn:hover { transform: scale(1.03); }
+  .link-ear {
+    background: rgba(255,240,245,.8);
+    border: 1.5px solid rgba(212,114,138,.4);
+    color: var(--primary-deep);
+  }
+  .link-line {
+    background: #06c755;
+    border: 1.5px solid #06c755;
+    color: #fff;
+    box-shadow: 0 4px 14px rgba(6,199,85,.25);
   }
   .link-blocked {
     display: none;
@@ -568,8 +585,14 @@ const MESSAGES = {
 
 // 耳占いサイト
 const EAR_SITE_URL = 'https://mimi-suuhi.netlify.app';
-const earLink = `<a class="footer-link" id="earLink" href="${EAR_SITE_URL}" target="_blank" rel="noopener">👂 耳占いはこちら</a>
-    <div class="link-blocked" id="earLinkBlocked">この画面ではリンクが開けません。<br>SafariやChromeで開くか、下のURLをコピーしてくださいね<br><span>${EAR_SITE_URL}</span></div>`;
+// LINE公式アカウント(相談窓口)
+const LINE_URL = 'https://lin.ee/p03Fa7b';
+
+const footerLinks = `<div class="link-row">
+      <a class="link-btn link-ear ext-link" href="${EAR_SITE_URL}" target="_blank" rel="noopener">👂 耳占いはこちら</a>
+      <a class="link-btn link-line ext-link" href="${LINE_URL}" target="_blank" rel="noopener">💬 LINEで相談する</a>
+    </div>
+    <div class="link-blocked" id="linkBlocked">この画面ではリンクが開けません。<br>SafariやChromeで開くか、下のURLをコピーしてくださいね<br><span id="linkBlockedUrl"></span></div>`;
 
 // Webで公開しているときだけ、このページのURLをシェア文に入れる
 const PAGE_URL = /^https?:$/.test(location.protocol) ? location.href : '';
@@ -639,7 +662,7 @@ function renderInput() {
     <button class="btn btn-primary" id="btnCalc" ${state.month && state.day ? '' : 'disabled'}>
       2027年のナンバーを見る　→
     </button>
-    ${earLink}
+    ${footerLinks}
   `);
 }
 
@@ -750,7 +773,7 @@ function renderResult() {
       </div>
       <div class="share-msg" id="shareMsg"></div>
     </div>
-    ${earLink}
+    ${footerLinks}
   `);
 }
 
@@ -782,19 +805,19 @@ function bindEvents() {
   if (btnCalc) btnCalc.addEventListener('click', renderLoading);
 
   // ファイルのプレビュー画面などで新しいタブが開けないときは、案内を出す
-  const earLinkEl = document.getElementById('earLink');
-  if (earLinkEl) {
-    earLinkEl.addEventListener('click', e => {
+  document.querySelectorAll('.ext-link').forEach(link => {
+    link.addEventListener('click', e => {
       e.preventDefault();
       let win = null;
-      try { win = window.open(EAR_SITE_URL, '_blank'); } catch {}
+      try { win = window.open(link.href, '_blank'); } catch {}
       if (win) {
         win.opener = null;
       } else {
-        document.getElementById('earLinkBlocked').classList.add('show');
+        document.getElementById('linkBlockedUrl').textContent = link.href;
+        document.getElementById('linkBlocked').classList.add('show');
       }
     });
-  }
+  });
 
   const btnRetry = document.getElementById('btnRetry');
   if (btnRetry) btnRetry.addEventListener('click', renderInput);
