@@ -293,6 +293,15 @@
     text-align: center; text-decoration: none;
   }
   .share-copy { background: linear-gradient(135deg, var(--second-light), var(--second)); }
+  .share-main { background: linear-gradient(135deg, #d4728a, #e8909a, #c05878); }
+  .share-img {
+    display: block; width: 100%;
+    border-radius: 14px;
+    margin-bottom: 10px;
+    box-shadow: 0 4px 16px rgba(200,100,130,.15);
+    -webkit-touch-callout: default;
+  }
+  .share-note { font-size: 11px; color: var(--text-sub); text-align: center; line-height: 1.7; margin-bottom: 12px; }
   .share-msg { font-size: 12px; color: var(--primary-deep); text-align: center; min-height: 18px; margin-top: 10px; }
 
   .link-row { display: flex; gap: 10px; margin-top: 18px; }
@@ -678,9 +687,166 @@ function renderLoading() {
   setTimeout(renderResult, 1600);
 }
 
-function shareText(number) {
+// アプリ紹介のシェア文
+function appShareText() {
   const url = PAGE_URL ? `\n${PAGE_URL}` : '';
-  return `私の2027年は、イヤーナンバー「2 × ${number}」の「${MESSAGES[number].theme}」でした✨\n${MESSAGES[number].step}${url}\n\n👂 耳占いはこちら\n${EAR_SITE_URL}\n#2027年イヤーナンバー #美容数秘鑑定YUKI`;
+  return `🌙 2027年 イヤーナンバー占い\n誕生日を入れるだけで、あなたの2027年のテーマと、仕事・健康・恋愛のアドバイスがわかります✨${url}\n\n👂 耳占いはこちら\n${EAR_SITE_URL}\n#2027年イヤーナンバー #美容数秘鑑定YUKI`;
+}
+
+// ─── 結果画像 (canvas) ────────────────────────────────
+const IMG_W = 1080;
+const FONT = "'Hiragino Sans', 'Noto Sans JP', sans-serif";
+const NO_LINE_START = '、。，．・：；？！」』）】ー〜ぁぃぅぇぉっゃゅょァィゥェォッャュョ!?)';
+
+// 日本語を1文字ずつ測って折り返す(行頭禁則つき)
+function wrapLines(ctx, text, maxWidth) {
+  const lines = [];
+  let line = '';
+  for (const ch of text) {
+    if (line && ctx.measureText(line + ch).width > maxWidth && !NO_LINE_START.includes(ch)) {
+      lines.push(line);
+      line = ch;
+    } else {
+      line += ch;
+    }
+  }
+  if (line) lines.push(line);
+  return lines;
+}
+
+function roundRect(ctx, x, y, w, h, r) {
+  ctx.beginPath();
+  ctx.moveTo(x + r, y);
+  ctx.arcTo(x + w, y, x + w, y + h, r);
+  ctx.arcTo(x + w, y + h, x, y + h, r);
+  ctx.arcTo(x, y + h, x, y, r);
+  ctx.arcTo(x, y, x + w, y, r);
+  ctx.closePath();
+}
+
+function drawBall(ctx, cx, cy, r, colors, num, label) {
+  const g = ctx.createLinearGradient(cx - r, cy - r, cx + r, cy + r);
+  g.addColorStop(0, colors[0]);
+  g.addColorStop(1, colors[1]);
+  ctx.fillStyle = g;
+  ctx.beginPath();
+  ctx.arc(cx, cy, r, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = '#fff';
+  ctx.textAlign = 'center';
+  ctx.font = `700 ${Math.round(r * 0.95)}px ${FONT}`;
+  ctx.fillText(String(num), cx, cy + r * 0.25);
+  ctx.font = `400 ${Math.round(r * 0.22)}px ${FONT}`;
+  ctx.fillText(label, cx, cy + r * 0.62);
+}
+
+// 中身を描いて、使った高さを返す
+function drawResultContent(ctx, number) {
+  const m = MESSAGES[number];
+  const X = 80, W = IMG_W - X * 2;
+  let y = 110;
+
+  ctx.textAlign = 'center';
+  ctx.fillStyle = '#b07085';
+  ctx.font = `400 30px ${FONT}`;
+  ctx.fillText('～ あなたの一歩を後押しする数秘 ～', IMG_W / 2, y);
+  y += 70;
+  ctx.fillStyle = '#c05878';
+  ctx.font = `400 58px ${FONT}`;
+  ctx.fillText('🌙 2027 イヤーナンバー', IMG_W / 2, y);
+  y += 170;
+
+  drawBall(ctx, IMG_W / 2 - 170, y, 92, ['#a98fd4', '#8a6fb8'], GLOBAL_NUMBER, 'グローバル');
+  ctx.fillStyle = '#a06070';
+  ctx.font = `400 48px ${FONT}`;
+  ctx.fillText('×', IMG_W / 2 - 20, y + 16);
+  drawBall(ctx, IMG_W / 2 + 140, y, 120, ['#e8909a', '#c05878'], number, 'パーソナル');
+  y += 210;
+
+  ctx.fillStyle = '#c05878';
+  ctx.font = `700 66px ${FONT}`;
+  ctx.fillText(m.theme, IMG_W / 2, y);
+  y += 60;
+  ctx.fillStyle = '#a06070';
+  ctx.font = `400 32px ${FONT}`;
+  ctx.fillText(m.keys, IMG_W / 2, y);
+  y += 50;
+
+  // 最初の一歩
+  ctx.font = `700 42px ${FONT}`;
+  const stepLines = wrapLines(ctx, m.step, W - 180);
+  const stepH = 110 + stepLines.length * 62 + 30;
+  const sg = ctx.createLinearGradient(X, y, X + W, y + stepH);
+  sg.addColorStop(0, 'rgba(212,114,138,.95)');
+  sg.addColorStop(1, 'rgba(138,111,184,.95)');
+  ctx.fillStyle = sg;
+  roundRect(ctx, X, y, W, stepH, 40);
+  ctx.fill();
+  ctx.fillStyle = '#fff';
+  ctx.font = `600 32px ${FONT}`;
+  ctx.fillText('👣 2027年、最初の一歩', IMG_W / 2, y + 70);
+  ctx.font = `700 42px ${FONT}`;
+  stepLines.forEach((l, i) => ctx.fillText(l, IMG_W / 2, y + 140 + i * 62));
+  y += stepH + 30;
+
+  // 仕事・健康・恋愛
+  [['💼', '仕事', m.work], ['🌿', '健康', m.health], ['💗', '恋愛', m.love]].forEach(([icon, title, t]) => {
+    ctx.font = `400 32px ${FONT}`;
+    const actLines = wrapLines(ctx, '✦ ' + t.action, W - 80);
+    const h = 104 + actLines.length * 48 + 12;
+    ctx.fillStyle = 'rgba(255,255,255,.82)';
+    roundRect(ctx, X, y, W, h, 36);
+    ctx.fill();
+    ctx.textAlign = 'left';
+    ctx.fillStyle = '#c05878';
+    ctx.font = `700 38px ${FONT}`;
+    ctx.fillText(`${icon} ${title}`, X + 40, y + 66);
+    ctx.fillStyle = '#a06070';
+    ctx.font = `400 30px ${FONT}`;
+    ctx.fillText(t.catch, X + 240, y + 64);
+    ctx.fillStyle = '#715399';
+    ctx.font = `400 32px ${FONT}`;
+    actLines.forEach((l, i) => ctx.fillText(l, X + 40, y + 126 + i * 48));
+    ctx.textAlign = 'center';
+    y += h + 22;
+  });
+
+  // ラッキー
+  y += 10;
+  ctx.fillStyle = '#a06070';
+  ctx.font = `400 30px ${FONT}`;
+  ctx.fillText(`🍀 ラッキーカラー：${m.lucky.color}　／　アイテム：${m.lucky.item}`, IMG_W / 2, y + 30);
+  y += 100;
+
+  ctx.fillStyle = '#c05878';
+  ctx.font = `600 34px ${FONT}`;
+  ctx.fillText('美容数秘鑑定 YUKI', IMG_W / 2, y);
+  y += 50;
+  ctx.fillStyle = '#a06070';
+  ctx.font = `400 26px ${FONT}`;
+  ctx.fillText(`👂 耳占い ${EAR_SITE_URL.replace('https://', '')}`, IMG_W / 2, y);
+  return y + 80;
+}
+
+function makeResultImage(number) {
+  const work = document.createElement('canvas');
+  work.width = IMG_W;
+  work.height = 3000;
+  const h = drawResultContent(work.getContext('2d'), number);
+
+  const out = document.createElement('canvas');
+  out.width = IMG_W;
+  out.height = Math.max(h, 1350);
+  const ctx = out.getContext('2d');
+  const bg = ctx.createLinearGradient(0, 0, IMG_W * .6, out.height);
+  bg.addColorStop(0, '#f9e4ee');
+  bg.addColorStop(.4, '#f2c8dc');
+  bg.addColorStop(.7, '#fde8f2');
+  bg.addColorStop(1, '#fdf0f8');
+  ctx.fillStyle = bg;
+  ctx.fillRect(0, 0, IMG_W, out.height);
+  ctx.drawImage(work, 0, 0);
+  return out;
 }
 
 function escapeHtml(str) {
@@ -765,9 +931,19 @@ function renderResult() {
     </div>
 
     <button class="btn btn-primary" id="btnRetry">別の誕生日で占う</button>
-    <button class="btn btn-secondary" id="btnShare">結果をシェアする</button>
+    <button class="btn btn-secondary" id="btnImage">📷 結果を画像で保存する</button>
+    <div class="share-panel" id="imagePanel">
+      <img class="share-img" id="resultImg" alt="2027年 イヤーナンバー占いの結果">
+      <div class="share-note">画像を長押しすると、写真に保存できます</div>
+      <div class="share-btns">
+        <button class="share-btn share-main" id="btnSaveImg">画像を保存・シェアする</button>
+      </div>
+      <div class="share-msg" id="imageMsg"></div>
+    </div>
+
+    <button class="btn btn-secondary" id="btnShare">🌙 このアプリをシェアする</button>
     <div class="share-panel" id="sharePanel">
-      <div class="share-preview" id="sharePreview">${escapeHtml(shareText(number))}</div>
+      <div class="share-preview" id="sharePreview">${escapeHtml(appShareText())}</div>
       <div class="share-btns">
         <button class="share-btn share-copy" id="btnCopy">文章をコピーする</button>
       </div>
@@ -831,10 +1007,53 @@ function bindEvents() {
     });
   }
 
+  const btnImage = document.getElementById('btnImage');
+  if (btnImage) {
+    btnImage.addEventListener('click', () => {
+      const panel = document.getElementById('imagePanel');
+      const img = document.getElementById('resultImg');
+      if (!img.src) {
+        img.src = makeResultImage(personalYear(Number(state.month), Number(state.day))).toDataURL('image/png');
+      }
+      panel.classList.toggle('open');
+      if (panel.classList.contains('open')) panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+  }
+
+  const btnSaveImg = document.getElementById('btnSaveImg');
+  if (btnSaveImg) {
+    btnSaveImg.addEventListener('click', async () => {
+      const msg = document.getElementById('imageMsg');
+      const dataUrl = document.getElementById('resultImg').src;
+      const fileName = '2027-year-number.png';
+      try {
+        const blob = await (await fetch(dataUrl)).blob();
+        const file = new File([blob], fileName, { type: 'image/png' });
+        if (navigator.canShare && navigator.canShare({ files: [file] })) {
+          await navigator.share({ files: [file], title: '2027年 イヤーナンバー占い' });
+          return;
+        }
+      } catch (e) {
+        if (e && e.name === 'AbortError') return;
+      }
+      try {
+        const a = document.createElement('a');
+        a.href = dataUrl;
+        a.download = fileName;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        msg.textContent = '保存できなかったときは、上の画像を長押しして保存してくださいね';
+      } catch {
+        msg.textContent = '上の画像を長押しして保存してくださいね';
+      }
+    });
+  }
+
   const btnCopy = document.getElementById('btnCopy');
   if (btnCopy) {
     btnCopy.addEventListener('click', async () => {
-      const ok = await copyText(shareText(personalYear(Number(state.month), Number(state.day))));
+      const ok = await copyText(appShareText());
       document.getElementById('shareMsg').textContent = ok
         ? 'コピーしました！SNSやLINEに貼りつけてくださいね'
         : '上の文章を長押しして、コピーしてくださいね';
