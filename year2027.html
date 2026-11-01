@@ -299,6 +299,13 @@
     display: block; text-align: center; margin-top: 18px;
     font-size: 12px; color: var(--text-sub); letter-spacing: .1em;
   }
+  .link-blocked {
+    display: none;
+    margin-top: 8px;
+    font-size: 11px; line-height: 1.8; color: var(--text-sub); text-align: center;
+  }
+  .link-blocked.show { display: block; }
+  .link-blocked span { user-select: all; -webkit-user-select: all; color: var(--primary-deep); }
 </style>
 </head>
 <body>
@@ -561,7 +568,8 @@ const MESSAGES = {
 
 // 耳占いサイト
 const EAR_SITE_URL = 'https://mimi-suuhi.netlify.app';
-const earLink = `<a class="footer-link" href="${EAR_SITE_URL}" target="_blank" rel="noopener">👂 耳占いはこちら</a>`;
+const earLink = `<a class="footer-link" id="earLink" href="${EAR_SITE_URL}" target="_blank" rel="noopener">👂 耳占いはこちら</a>
+    <div class="link-blocked" id="earLinkBlocked">この画面ではリンクが開けません。<br>SafariやChromeで開くか、下のURLをコピーしてくださいね<br><span>${EAR_SITE_URL}</span></div>`;
 
 // Webで公開しているときだけ、このページのURLをシェア文に入れる
 const PAGE_URL = /^https?:$/.test(location.protocol) ? location.href : '';
@@ -772,6 +780,21 @@ function bindEvents() {
     });
   }
   if (btnCalc) btnCalc.addEventListener('click', renderLoading);
+
+  // ファイルのプレビュー画面などで新しいタブが開けないときは、案内を出す
+  const earLinkEl = document.getElementById('earLink');
+  if (earLinkEl) {
+    earLinkEl.addEventListener('click', e => {
+      e.preventDefault();
+      let win = null;
+      try { win = window.open(EAR_SITE_URL, '_blank'); } catch {}
+      if (win) {
+        win.opener = null;
+      } else {
+        document.getElementById('earLinkBlocked').classList.add('show');
+      }
+    });
+  }
 
   const btnRetry = document.getElementById('btnRetry');
   if (btnRetry) btnRetry.addEventListener('click', renderInput);
